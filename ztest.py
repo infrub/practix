@@ -11,6 +11,7 @@ import os
 
 lw = 1.0
 trip = 20
+ashis = ["1m","5m","15m","60m","4h","1d"]
 times = 6
 
 dt_now = '\n\n' + str(dt.now())
@@ -18,17 +19,17 @@ dp.writelog(dt_now)
 
 pair = dp.pair()
 nomalize,spread = dp.spnm(pair)
-year = '2018'
-month = '9'
+year = 2018
+month = 9
 
-path = pair+'/'+pair+'_'+year+'_'+month
+path = "raw_histories/" + pair + '/' + str(year) + '_' + str(month).zfill(2)
 
 initial_text = open("nikki.txt").readlines()[-1]
 flamesize = 144
 
 df = [0]*times
-for numb in range(times):
-	df[numb] = pd.read_csv(path + '/time_'+str(numb)+'.csv', index_col=0, parse_dates=True)
+for i,ashi in enumerate(ashis):
+	df[i] = pd.read_csv(path + '/market_'+ashi+'.csv', index_col=0, parse_dates=True)
 
 idxs = [0]*times
 for k in range(times):
