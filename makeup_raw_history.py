@@ -9,7 +9,7 @@ import os
 # /raw_histories/<通貨ペア名>/alltime/ に market_<足>.csv という名前でデータ置いとく
 # そしてここを適切に編集して実行
 pairname = "USDGBP"
-ashis = ["1m","5m","15m","60m","4h","1d"]
+ashis = ["5m","15m","60m","4h","1d","1m"]
 ymlist = [(y,m) for y in [2018,2019] for m in range(1,13)]
 
 

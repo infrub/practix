@@ -11,7 +11,7 @@ import os
 
 lw = 1.0
 trip = 20
-ashis = ["1m","5m","15m","60m","4h","1d"]
+ashis = ["5m","15m","60m","4h","1d","1m"]
 times = 6
 
 dt_now = '\n\n' + str(dt.now())
