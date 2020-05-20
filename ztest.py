@@ -22,427 +22,424 @@ nomalize,spread = dp.spnm(pair)
 year = 2018
 month = 9
 
-path = "raw_histories/" + pair + '/' + str(year) + '_' + str(month).zfill(2)
-
 initial_text = open("nikki.txt").readlines()[-1]
 flamesize = 144
 
-df = [0]*times
-for i,ashi in enumerate(ashis):
-	df[i] = pd.read_csv(path + '/market_'+ashi+'.csv', index_col=0, parse_dates=True)
+df = {}
+idxs = {}
+for ashi in ashis:
+    df[ashi] = pd.read_csv("raw_histories/" + pair + '/' + str(year) + '_' + str(month).zfill(2) + '/market_'+ashi+'.csv', index_col=0, parse_dates=True)
+    idxs[ashi] = [x for x in range(len(df[ashi].index))]
 
-idxs = [0]*times
-for k in range(times):
-    x=0
-    idxs[k] = [x for x in range(len(df[k].index))]
+fig = {ashi:0 for ashi in ashis}
+ax = {ashi:[0,0] for ashi in ashis}
+graph = {ashi:[0,0] for ashi in ashis}
+
 
 plt.style.use('dark_background')
 
-fig = [0]*times
-ax = [[0,0] for x in range(times)]
-graph = [[0,0] for x in range(times)]
 
-number = 0
-fig[number] = plt.figure(number)
+ashi = "5m"
+fig[ashi] = plt.figure(ashi)
 
-ax[number][1] = fig[number].add_axes((0.05,0.15,0.9,0.2))
-ax[number][0] = fig[number].add_axes((0.05,0.35,0.9,0.6),sharex=ax[number][1])
+ax[ashi][1] = fig[ashi].add_axes((0.05,0.15,0.9,0.2))
+ax[ashi][0] = fig[ashi].add_axes((0.05,0.35,0.9,0.6),sharex=ax[ashi][1])
 
-nowpricetext = str(round(df[number].closePrice[flamesize-1],5))
+nowpricetext = str(round(df[ashi].closePrice[flamesize-1],5))
 entrypricetext = ''
 pricetext = 'entryprice:' + entrypricetext + "\n" +'nowprice:' + nowpricetext
-ax[number][0].text(0.05,0.85,pricetext,transform=ax[number][0].transAxes)
+ax[ashi][0].text(0.05,0.85,pricetext,transform=ax[ashi][0].transAxes)
 
-mac_main = df[number].macd_main.shift()
-mac_signal = df[number].macd_signal.shift()
-graph[number][1] = ax[number][1].plot(idxs[number], mac_main, linewidth = lw)
-graph[number][1] = ax[number][1].plot(idxs[number], mac_signal, linewidth = lw)
-mainhani = df[number].macd_main[0:flamesize]
-signalhani = df[number].macd_signal[0:flamesize]
+mac_main = df[ashi].macd_main.shift()
+mac_signal = df[ashi].macd_signal.shift()
+graph[ashi][1] = ax[ashi][1].plot(idxs[ashi], mac_main, linewidth = lw)
+graph[ashi][1] = ax[ashi][1].plot(idxs[ashi], mac_signal, linewidth = lw)
+mainhani = df[ashi].macd_main[0:flamesize]
+signalhani = df[ashi].macd_signal[0:flamesize]
 y1hani = mainhani+signalhani
 
-buff = 5.0e-04*df[0].closePrice[0]
-ax[number][1].set_ylim(min(y1hani)-buff*0.01,max(y1hani)+buff*0.01)
-ax[number][1].grid(True,linestyle='dotted')
-ax[number][1].tick_params(labelbottom=False)
+buff = 5.0e-04*df["5m"].closePrice[0]
+ax[ashi][1].set_ylim(min(y1hani)-buff*0.01,max(y1hani)+buff*0.01)
+ax[ashi][1].grid(True,linestyle='dotted')
+ax[ashi][1].tick_params(labelbottom=False)
 
-graph[number][0] = mpf.candlestick2_ohlc_indexed_by_openTime(ax[number][0], df[number].openPrice, df[number].highPrice, df[number].lowPrice, df[number].closePrice, width=0.8, alpha=1.0, colorup='#FF0000', colordown='g')
-MAmid = df[number].MA_mid.shift()
-MAshort = df[number].MA_short.shift()
-MAlong = df[number].MA_long.shift()
-graph[number][0] = ax[number][0].scatter(idxs[number], MAmid, s=1)
-graph[number][0] = ax[number][0].scatter(idxs[number], MAshort, s=1)
-graph[number][0] = ax[number][0].scatter(idxs[number], MAlong, s=1)
+graph[ashi][0] = mpf.candlestick2_ohlc_indexed_by_openTime(ax[ashi][0], df[ashi].openPrice, df[ashi].highPrice, df[ashi].lowPrice, df[ashi].closePrice, width=0.8, alpha=1.0, colorup='#FF0000', colordown='g')
+MAmid = df[ashi].MA_mid.shift()
+MAshort = df[ashi].MA_short.shift()
+MAlong = df[ashi].MA_long.shift()
+graph[ashi][0] = ax[ashi][0].scatter(idxs[ashi], MAmid, s=1)
+graph[ashi][0] = ax[ashi][0].scatter(idxs[ashi], MAshort, s=1)
+graph[ashi][0] = ax[ashi][0].scatter(idxs[ashi], MAlong, s=1)
 
 def show_log(df):
-	logdf = pd.read_csv("logdf.csv",header= None)
-	starts = logdf[0]
-	goals = logdf[1]
-	ystarts = [0]*len(starts)
-	ygoals = [200]*len(goals)
-	xx = [starts,goals,goals,starts]
-	yy = [ystarts,ystarts,ygoals,ygoals]
-	ax[number][0].fill(xx,yy,color="y",alpha=0.4)
+    logdf = pd.read_csv("logdf.csv",header= None)
+    starts = logdf[0]
+    goals = logdf[1]
+    ystarts = [0]*len(starts)
+    ygoals = [200]*len(goals)
+    xx = [starts,goals,goals,starts]
+    yy = [ystarts,ystarts,ygoals,ygoals]
+    ax[ashi][0].fill(xx,yy,color="y",alpha=0.4)
 
 #show_log(df)
 
-ax[number][0].set_xlim(idxs[number][0],idxs[number][flamesize])
-ax[number][0].set_xticks(idxs[number][0:flamesize:trip])
-ax[number][0].set_xticklabels(df[number].index[0:flamesize:trip].strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
+ax[ashi][0].set_xlim(idxs[ashi][0],idxs[ashi][flamesize])
+ax[ashi][0].set_xticks(idxs[ashi][0:flamesize:trip])
+ax[ashi][0].set_xticklabels(df[ashi].index[0:flamesize:trip].strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
 
-yhani = df[number].closePrice[0:flamesize]
-ax[number][0].set_ylim(min(yhani)-buff,max(yhani)+buff)
-ax[number][0].grid(True,linestyle='dotted')
+yhani = df[ashi].closePrice[0:flamesize]
+ax[ashi][0].set_ylim(min(yhani)-buff,max(yhani)+buff)
+ax[ashi][0].grid(True,linestyle='dotted')
 
 
 class Index(object):
-	ind = 0
-	oneMind = 0
-	entrytype = 0
-	entryprice = 0
-	oneMprice = 0
-	oneMnow = df[5].index[0]
-	entrytime = df[0].index[0]
-	entrypricetext = ' '
+    ind = 0
+    oneMind = 0
+    entrytype = 0
+    entryprice = 0
+    oneMprice = 0
+    oneMnow = df["1m"].index[0]
+    entrytime = df["5m"].index[0]
+    entrypricetext = ' '
 
-	def prepare_times(self, number, i):
-		now = date2num(df[0].index[i+flamesize])
-		fig[number] = plt.figure(number)
-		plt.close()
-		fig[number] = plt.figure(number)
-		ax[number][1] = fig[number].add_axes((0.05,0.15,0.9,0.2))
-		ax[number][0] = fig[number].add_axes((0.05,0.35,0.9,0.6),sharex=ax[number][1])
-		idx = np.abs(np.asarray(date2num(df[number].index)) - now).argmin() + 1
-		if (date2num(df[number].index[idx]) - now > 0):
-		    idx = idx-1
-		start = idx-flamesize
-		if(start<0):
-		    start = 0
+    def prepare_times(self, ashi, i):
+        now = date2num(df["5m"].index[i+flamesize])
+        fig[ashi] = plt.figure(ashi)
+        plt.close()
+        fig[ashi] = plt.figure(ashi)
+        ax[ashi][1] = fig[ashi].add_axes((0.05,0.15,0.9,0.2))
+        ax[ashi][0] = fig[ashi].add_axes((0.05,0.35,0.9,0.6),sharex=ax[ashi][1])
+        idx = np.abs(np.asarray(date2num(df[ashi].index)) - now).argmin() + 1
+        if (date2num(df[ashi].index[idx]) - now > 0):
+            idx = idx-1
+        start = idx-flamesize
+        if(start<0):
+            start = 0
 
-		return start,idx
+        return start,idx
 
-	def show_times(self, number,start, idx):
-		start = idx-flamesize
-		if(start<0):
-		    start = 0
-		nowdf = df[number][start:idx]
+    def show_times(self, ashi,start, idx):
+        start = idx-flamesize
+        if(start<0):
+            start = 0
+        nowdf = df[ashi][start:idx]
 
-		graph[number][0] = mpf.candlestick2_ohlc_indexed_by_openTime(ax[number][0], nowdf.openPrice, nowdf.highPrice, nowdf.lowPrice, nowdf.closePrice, width=0.8, alpha=1.0, colorup='#FF0000', colordown='g')
-		graph[number][0] = ax[number][0].scatter(idxs[number][0:idx-start], nowdf.MA_mid, s = 1)
-		graph[number][0] = ax[number][0].scatter(idxs[number][0:idx-start], nowdf.MA_short, s = 1)
-		graph[number][0] = ax[number][0].scatter(idxs[number][0:idx-start], nowdf.MA_long, s = 1)
-		yhani = df[number].closePrice[start:idx]
-		ax[number][0].set_ylim(min(yhani)-buff,max(yhani)+buff)
-		ax[number][0].grid(True,linestyle='dotted')
-		ax[number][0].set_xlim(idxs[number][0],idxs[number][idx-start])
-		ax[number][0].set_xticks(idxs[number][0:idx-start:trip])
-		ax[number][0].set_xticklabels(df[number].index[start:idx:trip].strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
+        graph[ashi][0] = mpf.candlestick2_ohlc_indexed_by_openTime(ax[ashi][0], nowdf.openPrice, nowdf.highPrice, nowdf.lowPrice, nowdf.closePrice, width=0.8, alpha=1.0, colorup='#FF0000', colordown='g')
+        graph[ashi][0] = ax[ashi][0].scatter(idxs[ashi][0:idx-start], nowdf.MA_mid, s = 1)
+        graph[ashi][0] = ax[ashi][0].scatter(idxs[ashi][0:idx-start], nowdf.MA_short, s = 1)
+        graph[ashi][0] = ax[ashi][0].scatter(idxs[ashi][0:idx-start], nowdf.MA_long, s = 1)
+        yhani = df[ashi].closePrice[start:idx]
+        ax[ashi][0].set_ylim(min(yhani)-buff,max(yhani)+buff)
+        ax[ashi][0].grid(True,linestyle='dotted')
+        ax[ashi][0].set_xlim(idxs[ashi][0],idxs[ashi][idx-start])
+        ax[ashi][0].set_xticks(idxs[ashi][0:idx-start:trip])
+        ax[ashi][0].set_xticklabels(df[ashi].index[start:idx:trip].strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
 
-		main = df[number].macd_main[start:idx].shift()
-		signal = df[number].macd_signal[start:idx].shift()
-		graph[number][1] = ax[number][1].plot(idxs[number][0:idx-start], main)
-		graph[number][1] = ax[number][1].plot(idxs[number][0:idx-start], signal)
-		mainhani = df[number].macd_main[start:idx]
-		signalhani = df[number].macd_signal[start:idx]
-		y1hani = mainhani+signalhani
-		ax[number][1].set_ylim(min(y1hani)-buff*0.01,max(y1hani)+buff*0.01)
-		ax[number][1].grid(True,linestyle='dotted')
-		ax[number][1].tick_params(labelbottom=False)
+        main = df[ashi].macd_main[start:idx].shift()
+        signal = df[ashi].macd_signal[start:idx].shift()
+        graph[ashi][1] = ax[ashi][1].plot(idxs[ashi][0:idx-start], main)
+        graph[ashi][1] = ax[ashi][1].plot(idxs[ashi][0:idx-start], signal)
+        mainhani = df[ashi].macd_main[start:idx]
+        signalhani = df[ashi].macd_signal[start:idx]
+        y1hani = mainhani+signalhani
+        ax[ashi][1].set_ylim(min(y1hani)-buff*0.01,max(y1hani)+buff*0.01)
+        ax[ashi][1].grid(True,linestyle='dotted')
+        ax[ashi][1].tick_params(labelbottom=False)
 
-		nowpricetext = str(round(df[number].closePrice[idx-1],5))
-		if(self.entrypricetext!=''):
-			pips = self.entrytype*(round((df[number].closePrice[idx-1]-self.entryprice)*nomalize,3))-spread
-			pipstext = str(pips)
-			pricetext = 'pips:' + pipstext + "\n" + 'entryprice:' + self.entrypricetext + "\n" +'nowprice:' + nowpricetext
-		else:
-			pricetext = 'entryprice:' + self.entrypricetext + "\n" +'nowprice:' + nowpricetext
-		for txt in ax[number][0].texts:
-		    txt.set_visible(False)
-		ax[number][0].text(0.05,0.85,pricetext,transform=ax[number][0].transAxes)
+        nowpricetext = str(round(df[ashi].closePrice[idx-1],5))
+        if(self.entrypricetext!=''):
+            pips = self.entrytype*(round((df[ashi].closePrice[idx-1]-self.entryprice)*nomalize,3))-spread
+            pipstext = str(pips)
+            pricetext = 'pips:' + pipstext + "\n" + 'entryprice:' + self.entrypricetext + "\n" +'nowprice:' + nowpricetext
+        else:
+            pricetext = 'entryprice:' + self.entrypricetext + "\n" +'nowprice:' + nowpricetext
+        for txt in ax[ashi][0].texts:
+            txt.set_visible(False)
+        ax[ashi][0].text(0.05,0.85,pricetext,transform=ax[ashi][0].transAxes)
 
-		plt.show()
-	
-	def submit(self, text):
-		number = 0
-		date = text
-		future = date2num(dt.strptime(date, '%Y-%m-%d %H:%M'))
-		idx = np.abs(np.asarray(date2num(df[number].index)) - future).argmin() + 1
-		i = idx - flamesize
-		self.ind = i
-		ax[number][0].set_xlim(idxs[number][i],idxs[number][i+flamesize])
-		ax[number][0].set_xticks(idxs[number][i:i+flamesize:trip])
-		ax[number][0].set_xticklabels(df[number].index[i:i+flamesize:trip].strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
-		yhani = df[number].closePrice[i:i+flamesize]
-		ax[number][0].set_ylim(min(yhani)-buff,max(yhani)+buff)
-		#ax[number][0].grid(True,linestyle='dotted')
-		mainhani = df[number].macd_main[i:i+flamesize]
-		signalhani = df[number].macd_signal[i:i+flamesize]
-		y1hani = mainhani+signalhani
+        plt.show()
+    
+    def submit(self, text):
+        ashi = "5m"
+        date = text
+        future = date2num(dt.strptime(date, '%Y-%m-%d %H:%M'))
+        idx = np.abs(np.asarray(date2num(df[ashi].index)) - future).argmin() + 1
+        i = idx - flamesize
+        self.ind = i
+        ax[ashi][0].set_xlim(idxs[ashi][i],idxs[ashi][i+flamesize])
+        ax[ashi][0].set_xticks(idxs[ashi][i:i+flamesize:trip])
+        ax[ashi][0].set_xticklabels(df[ashi].index[i:i+flamesize:trip].strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
+        yhani = df[ashi].closePrice[i:i+flamesize]
+        ax[ashi][0].set_ylim(min(yhani)-buff,max(yhani)+buff)
+        #ax[ashi][0].grid(True,linestyle='dotted')
+        mainhani = df[ashi].macd_main[i:i+flamesize]
+        signalhani = df[ashi].macd_signal[i:i+flamesize]
+        y1hani = mainhani+signalhani
 
-		ax[number][1].set_ylim(min(y1hani)-buff*0.01,max(y1hani)+buff*0.01)
-		ax[number][1].grid(True,linestyle='dotted')
-		ax[number][1].tick_params(labelbottom=False)
+        ax[ashi][1].set_ylim(min(y1hani)-buff*0.01,max(y1hani)+buff*0.01)
+        ax[ashi][1].grid(True,linestyle='dotted')
+        ax[ashi][1].tick_params(labelbottom=False)
 
-		nowpricetext = str(round(df[number].closePrice[i+flamesize-1],5))
-		enpricetext = ''
-		pricetext = 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
-		for txt in ax[0][0].texts:
-			txt.set_visible(False)
-		ax[number][0].text(0.05,0.85,pricetext,transform=ax[0][0].transAxes)
-		plt.draw()
-		logtext = 'move to ' + str(date)
-		dp.writelog(logtext)
+        nowpricetext = str(round(df[ashi].closePrice[i+flamesize-1],5))
+        enpricetext = ''
+        pricetext = 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
+        for txt in ax["5m"][0].texts:
+            txt.set_visible(False)
+        ax[ashi][0].text(0.05,0.85,pricetext,transform=ax["5m"][0].transAxes)
+        plt.draw()
+        logtext = 'move to ' + str(date)
+        dp.writelog(logtext)
 
-	def next(self, event):
-		self.ind += 1
-		i = self.ind
-		self.oneMind = 0
-		number = 0
-		ax[number][0].set_xlim(idxs[number][i],idxs[number][i+flamesize])
-		ax[number][0].set_xticks(idxs[number][i:i+flamesize:trip])
-		ax[number][0].set_xticklabels(df[number].index[i:i+flamesize:trip].strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
-		yhani = df[number].closePrice[i:i+flamesize]
-		ax[number][0].set_ylim(min(yhani)-buff,max(yhani)+buff)
-		#ax[number][0].grid(True,linestyle='dotted')
-		mainhani = df[number].macd_main[i:i+flamesize]
-		signalhani = df[number].macd_signal[i:i+flamesize]
-		y1hani = mainhani+signalhani
+    def next(self, event):
+        self.ind += 1
+        i = self.ind
+        self.oneMind = 0
+        ashi = "5m"
+        ax[ashi][0].set_xlim(idxs[ashi][i],idxs[ashi][i+flamesize])
+        ax[ashi][0].set_xticks(idxs[ashi][i:i+flamesize:trip])
+        ax[ashi][0].set_xticklabels(df[ashi].index[i:i+flamesize:trip].strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
+        yhani = df[ashi].closePrice[i:i+flamesize]
+        ax[ashi][0].set_ylim(min(yhani)-buff,max(yhani)+buff)
+        #ax[ashi][0].grid(True,linestyle='dotted')
+        mainhani = df[ashi].macd_main[i:i+flamesize]
+        signalhani = df[ashi].macd_signal[i:i+flamesize]
+        y1hani = mainhani+signalhani
 
-		ax[number][1].set_ylim(min(y1hani)-buff*0.01,max(y1hani)+buff*0.01)
-		ax[number][1].grid(True,linestyle='dotted')
-		ax[number][1].tick_params(labelbottom=False)
+        ax[ashi][1].set_ylim(min(y1hani)-buff*0.01,max(y1hani)+buff*0.01)
+        ax[ashi][1].grid(True,linestyle='dotted')
+        ax[ashi][1].tick_params(labelbottom=False)
 
-		nowpricetext = str(round(df[number].closePrice[i+flamesize-1],5))
-		enpricetext = self.entrypricetext
-		if(enpricetext!=''):
-			pips = self.entrytype*(round((df[number].closePrice[i+flamesize-1]-self.entryprice)*nomalize,3))-spread
-			pipstext = str(pips)
-			pricetext = 'pips:' + pipstext + "\n" + 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
-		else:
-			pricetext = 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
-		for txt in ax[number][0].texts:
-		    txt.set_visible(False)
-		ax[number][0].text(0.05,0.85,pricetext,transform=ax[0][0].transAxes)
-		plt.draw()
+        nowpricetext = str(round(df[ashi].closePrice[i+flamesize-1],5))
+        enpricetext = self.entrypricetext
+        if(enpricetext!=''):
+            pips = self.entrytype*(round((df[ashi].closePrice[i+flamesize-1]-self.entryprice)*nomalize,3))-spread
+            pipstext = str(pips)
+            pricetext = 'pips:' + pipstext + "\n" + 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
+        else:
+            pricetext = 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
+        for txt in ax[ashi][0].texts:
+            txt.set_visible(False)
+        ax[ashi][0].text(0.05,0.85,pricetext,transform=ax["5m"][0].transAxes)
+        plt.draw()
 
-		logtext = 'next'
-		dp.writelog(logtext)
+        logtext = 'next'
+        dp.writelog(logtext)
 
-	def prev(self, event):
-		self.ind -= 1
-		i = self.ind
-		self.oneMind = 0
-		number = 0
-		ax[number][0].set_xlim(idxs[number][i],idxs[number][i+flamesize])
-		ax[number][0].set_xticks(idxs[number][i:i+flamesize:trip])
-		ax[number][0].set_xticklabels(df[number].index[i:i+flamesize:trip].strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
-		yhani = df[number].closePrice[i:i+flamesize]
-		ax[number][0].set_ylim(min(yhani)-buff,max(yhani)+buff)
-		#ax[number][0].grid(True,linestyle='dotted')
-		mainhani = df[number].macd_main[i:i+flamesize]
-		signalhani = df[number].macd_signal[i:i+flamesize]
-		y1hani = mainhani+signalhani
+    def prev(self, event):
+        self.ind -= 1
+        i = self.ind
+        self.oneMind = 0
+        ashi = "5m"
+        ax[ashi][0].set_xlim(idxs[ashi][i],idxs[ashi][i+flamesize])
+        ax[ashi][0].set_xticks(idxs[ashi][i:i+flamesize:trip])
+        ax[ashi][0].set_xticklabels(df[ashi].index[i:i+flamesize:trip].strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
+        yhani = df[ashi].closePrice[i:i+flamesize]
+        ax[ashi][0].set_ylim(min(yhani)-buff,max(yhani)+buff)
+        #ax[ashi][0].grid(True,linestyle='dotted')
+        mainhani = df[ashi].macd_main[i:i+flamesize]
+        signalhani = df[ashi].macd_signal[i:i+flamesize]
+        y1hani = mainhani+signalhani
 
-		ax[number][1].set_ylim(min(y1hani)-buff*0.01,max(y1hani)+buff*0.01)
-		ax[number][1].grid(True,linestyle='dotted')
-		ax[number][1].tick_params(labelbottom=False)
+        ax[ashi][1].set_ylim(min(y1hani)-buff*0.01,max(y1hani)+buff*0.01)
+        ax[ashi][1].grid(True,linestyle='dotted')
+        ax[ashi][1].tick_params(labelbottom=False)
 
-		nowpricetext = str(round(df[number].closePrice[i+flamesize-1],5))
-		enpricetext = self.entrypricetext
-		if(enpricetext!=''):
-			pips = self.entrytype*(round((df[number].closePrice[i+flamesize-1]-self.entryprice)*nomalize,3))-spread
-			pipstext = str(pips)
-			pricetext = 'pips:' + pipstext + "\n" + 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
-		else:
-			pricetext = 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
-		for txt in ax[0][0].texts:
-		    txt.set_visible(False)
-		ax[number][0].text(0.05,0.85,pricetext,transform=ax[0][0].transAxes)
-		plt.draw()
+        nowpricetext = str(round(df[ashi].closePrice[i+flamesize-1],5))
+        enpricetext = self.entrypricetext
+        if(enpricetext!=''):
+            pips = self.entrytype*(round((df[ashi].closePrice[i+flamesize-1]-self.entryprice)*nomalize,3))-spread
+            pipstext = str(pips)
+            pricetext = 'pips:' + pipstext + "\n" + 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
+        else:
+            pricetext = 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
+        for txt in ax["5m"][0].texts:
+            txt.set_visible(False)
+        ax[ashi][0].text(0.05,0.85,pricetext,transform=ax["5m"][0].transAxes)
+        plt.draw()
 
-		logtext = 'previous'
-		dp.writelog(logtext)
-
-
-	def buy(self, event):
-		i = self.ind
-		self.entryprice = df[0].closePrice[i+flamesize-1]
-		self.entrypricetext = str(round(self.entryprice,5))
-		nowpricetext = str(round(df[0].closePrice[i+flamesize-1],5))
-		enpricetext = self.entrypricetext
-		pricetext = 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
-		for txt in ax[0][0].texts:
-		    txt.set_visible(False)
-		ax[0][0].text(0.05,0.85,pricetext,transform=ax[0][0].transAxes)
-		self.entrytype = 1
-		self.entrytime = df[0].index[i+flamesize-1]
-
-		logtext = 'buy at ' + str(df[0].index[i+flamesize-1])
-		dp.writelog(logtext)
-
-	def sell(self, event):
-		i = self.ind
-		self.entryprice = df[0].closePrice[i+flamesize-1]
-		self.entrypricetext = str(round(self.entryprice,5))
-		nowpricetext = str(round(df[0].closePrice[i+flamesize-1],5))
-		enpricetext = self.entrypricetext
-		pricetext = 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
-		for txt in ax[0][0].texts:
-		    txt.set_visible(False)
-		ax[0][0].text(0.05,0.85,pricetext,transform=ax[0][0].transAxes)
-		self.entrytype = -1
-		self.entrytime = df[0].index[i+flamesize-1]
-
-		logtext = 'sell at ' + str(df[0].index[i+flamesize-1])
-		dp.writelog(logtext)
-
-	def oneMbuy(self, event):
-
-		self.entryprice = self.oneMprice
-		self.entrypricetext = str(round(self.entryprice,5))
-		nowpricetext = self.entrypricetext
-		enpricetext = self.entrypricetext
-		pricetext = 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
-		for txt in ax[0][0].texts:
-		    txt.set_visible(False)
-		ax[0][0].text(0.05,0.85,pricetext,transform=ax[0][0].transAxes)
-		self.entrytype = 1
-		self.entrytime = self.oneMnow
-
-		logtext = 'buy at ' + str(self.oneMnow)
-		dp.writelog(logtext)
-
-	def oneMsell(self, event):
-
-		self.entryprice = self.oneMprice
-		self.entrypricetext = str(round(self.entryprice,5))
-		nowpricetext = self.entrypricetext
-		enpricetext = self.entrypricetext
-		pricetext = 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
-		for txt in ax[0][0].texts:
-		    txt.set_visible(False)
-		ax[0][0].text(0.05,0.85,pricetext,transform=ax[0][0].transAxes)
-		self.entrytype = -1
-		self.entrytime = self.oneMnow
-
-		logtext = 'sell at ' + str(self.oneMnow)
-		dp.writelog(logtext)
+        logtext = 'previous'
+        dp.writelog(logtext)
 
 
-	def exit(self, event):
-		i = self.ind
-		enprice = self.entryprice
-		etype = self.entrytype
-		exprice = df[0].closePrice[i+flamesize-1]
-		extime = df[0].index[i+flamesize-1]
-		entime = self.entrytime
-		self.entrypricetext = ''
-		nowpricetext = str(round(df[0].closePrice[i+flamesize-1],5))
-		enpricetext = self.entrypricetext
-		pricetext = 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
-		for txt in ax[0][0].texts:
-		    txt.set_visible(False)
-		ax[0][0].text(0.05,0.85,pricetext,transform=ax[0][0].transAxes)
-		pips = etype*(exprice-enprice)*nomalize - spread
-		pips = round(pips, 1)
+    def buy(self, event):
+        i = self.ind
+        self.entryprice = df["5m"].closePrice[i+flamesize-1]
+        self.entrypricetext = str(round(self.entryprice,5))
+        nowpricetext = str(round(df["5m"].closePrice[i+flamesize-1],5))
+        enpricetext = self.entrypricetext
+        pricetext = 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
+        for txt in ax["5m"][0].texts:
+            txt.set_visible(False)
+        ax["5m"][0].text(0.05,0.85,pricetext,transform=ax["5m"][0].transAxes)
+        self.entrytype = 1
+        self.entrytime = df["5m"].index[i+flamesize-1]
 
-		text = str(entime) + "," + str(extime) + "," + str(pips) + "," + str(etype) + "\n"
+        logtext = 'buy at ' + str(df["5m"].index[i+flamesize-1])
+        dp.writelog(logtext)
 
-		logfile_path = pair+'/'+'log_'+pair+'/'
-		filename = 'log_'+year+'_'+month+'.csv'
+    def sell(self, event):
+        i = self.ind
+        self.entryprice = df["5m"].closePrice[i+flamesize-1]
+        self.entrypricetext = str(round(self.entryprice,5))
+        nowpricetext = str(round(df["5m"].closePrice[i+flamesize-1],5))
+        enpricetext = self.entrypricetext
+        pricetext = 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
+        for txt in ax["5m"][0].texts:
+            txt.set_visible(False)
+        ax["5m"][0].text(0.05,0.85,pricetext,transform=ax["5m"][0].transAxes)
+        self.entrytype = -1
+        self.entrytime = df["5m"].index[i+flamesize-1]
 
-		try:
-			oup = open(logfile_path+filename,"a")
-		except FileNotFoundError:
-			os.makedirs(logfile_path)
-			oup = open(logfile_path+filename,"a")
-		oup.write(text)
-		oup.close()
+        logtext = 'sell at ' + str(df["5m"].index[i+flamesize-1])
+        dp.writelog(logtext)
 
-		logtext = 'exit at ' + str(extime)
-		dp.writelog(logtext)
+    def oneMbuy(self, event):
 
-	def oneMexit(self, event):
-		enprice = self.entryprice
-		etype = self.entrytype
-		exprice = self.oneMprice
-		extime = self.oneMnow
-		entime = self.entrytime
-		self.entrypricetext = ''
-		nowpricetext = str(exprice)
-		enpricetext = self.entrypricetext
-		pricetext = 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
-		for txt in ax[0][0].texts:
-		    txt.set_visible(False)
-		ax[0][0].text(0.05,0.85,pricetext,transform=ax[0][0].transAxes)
-		pips = etype*(exprice-enprice)*nomalize - spread
-		pips = round(pips, 1)
+        self.entryprice = self.oneMprice
+        self.entrypricetext = str(round(self.entryprice,5))
+        nowpricetext = self.entrypricetext
+        enpricetext = self.entrypricetext
+        pricetext = 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
+        for txt in ax["5m"][0].texts:
+            txt.set_visible(False)
+        ax["5m"][0].text(0.05,0.85,pricetext,transform=ax["5m"][0].transAxes)
+        self.entrytype = 1
+        self.entrytime = self.oneMnow
 
-		text = str(entime) + "," + str(extime) + "," + str(pips) + "," + str(etype) + "\n"
+        logtext = 'buy at ' + str(self.oneMnow)
+        dp.writelog(logtext)
 
-		logfile_path = pair+'/'+'log_'+pair+'/'
-		filename = 'log_'+year+'_'+month+'.csv'
+    def oneMsell(self, event):
 
-		try:
-			oup = open(logfile_path+filename,"a")
-		except FileNotFoundError:
-			os.makedirs(logfile_path)
-			oup = open(logfile_path+filename,"a")
-		oup.write(text)
-		oup.close()
+        self.entryprice = self.oneMprice
+        self.entrypricetext = str(round(self.entryprice,5))
+        nowpricetext = self.entrypricetext
+        enpricetext = self.entrypricetext
+        pricetext = 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
+        for txt in ax["5m"][0].texts:
+            txt.set_visible(False)
+        ax["5m"][0].text(0.05,0.85,pricetext,transform=ax["5m"][0].transAxes)
+        self.entrytype = -1
+        self.entrytime = self.oneMnow
 
-		logtext = 'exit at ' + str(extime)
-		dp.writelog(logtext)
+        logtext = 'sell at ' + str(self.oneMnow)
+        dp.writelog(logtext)
 
-	def showM15(self, event):
-		logtext = 'see 15M'
-		dp.writelog(logtext)
-		i = self.ind
-		number = 1
-		start, idx = self.prepare_times(number,i)
-		self.show_times(number, start, idx)
-		plt.figure(0)
-		
-	def showM60(self, event):
-		logtext = 'see 60M'
-		dp.writelog(logtext)
-		i = self.ind
-		number = 2
-		start, idx = self.prepare_times(number,i)
-		self.show_times(number, start, idx)
-		plt.figure(0)
 
-	def showH4(self, event):
-		logtext = 'see 4H'
-		dp.writelog(logtext)
-		i = self.ind
-		number = 3
-		start, idx = self.prepare_times(number,i)
-		self.show_times(number, start, idx)
-		plt.figure(0)
+    def exit(self, event):
+        i = self.ind
+        enprice = self.entryprice
+        etype = self.entrytype
+        exprice = df["5m"].closePrice[i+flamesize-1]
+        extime = df["5m"].index[i+flamesize-1]
+        entime = self.entrytime
+        self.entrypricetext = ''
+        nowpricetext = str(round(df["5m"].closePrice[i+flamesize-1],5))
+        enpricetext = self.entrypricetext
+        pricetext = 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
+        for txt in ax["5m"][0].texts:
+            txt.set_visible(False)
+        ax["5m"][0].text(0.05,0.85,pricetext,transform=ax["5m"][0].transAxes)
+        pips = etype*(exprice-enprice)*nomalize - spread
+        pips = round(pips, 1)
 
-	def showD1(self, event):
-		logtext = 'see 1D'
-		dp.writelog(logtext)
-		i = self.ind
-		number = 4
-		start, idx = self.prepare_times(number,i)
-		self.show_times(number, start, idx)
-		plt.figure(0)
+        text = str(entime) + "," + str(extime) + "," + str(pips) + "," + str(etype) + "\n"
 
-	def showM1(self, event):
-		logtext = 'see 1M'
-		dp.writelog(logtext)
-		self.oneMind += 1
-		i = self.ind
-		diff = self.oneMind - 1
-		number = 5
-		start, idx = self.prepare_times(number,i)
-		idx = idx + diff
-		self.oneMprice = round(df[number].closePrice[idx-1],5)
-		self.oneMnow = df[number].index[idx-1]
-		self.show_times(number, start, idx)
-		plt.figure(0)
+        logfile_path = pair+'/'+'log_'+pair+'/'
+        filename = 'log_'+year+'_'+month+'.csv'
+
+        try:
+            oup = open(logfile_path+filename,"a")
+        except FileNotFoundError:
+            os.makedirs(logfile_path)
+            oup = open(logfile_path+filename,"a")
+        oup.write(text)
+        oup.close()
+
+        logtext = 'exit at ' + str(extime)
+        dp.writelog(logtext)
+
+    def oneMexit(self, event):
+        enprice = self.entryprice
+        etype = self.entrytype
+        exprice = self.oneMprice
+        extime = self.oneMnow
+        entime = self.entrytime
+        self.entrypricetext = ''
+        nowpricetext = str(exprice)
+        enpricetext = self.entrypricetext
+        pricetext = 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
+        for txt in ax["5m"][0].texts:
+            txt.set_visible(False)
+        ax["5m"][0].text(0.05,0.85,pricetext,transform=ax["5m"][0].transAxes)
+        pips = etype*(exprice-enprice)*nomalize - spread
+        pips = round(pips, 1)
+
+        text = str(entime) + "," + str(extime) + "," + str(pips) + "," + str(etype) + "\n"
+
+        logfile_path = pair+'/'+'log_'+pair+'/'
+        filename = 'log_'+year+'_'+month+'.csv'
+
+        try:
+            oup = open(logfile_path+filename,"a")
+        except FileNotFoundError:
+            os.makedirs(logfile_path)
+            oup = open(logfile_path+filename,"a")
+        oup.write(text)
+        oup.close()
+
+        logtext = 'exit at ' + str(extime)
+        dp.writelog(logtext)
+
+    def showM15(self, event):
+        logtext = 'see 15M'
+        dp.writelog(logtext)
+        i = self.ind
+        ashi ="15m"
+        start, idx = self.prepare_times(ashi,i)
+        self.show_times(ashi, start, idx)
+        plt.figure(0)
+        
+    def showM60(self, event):
+        logtext = 'see 60M'
+        dp.writelog(logtext)
+        i = self.ind
+        ashi = "60m"
+        start, idx = self.prepare_times(ashi,i)
+        self.show_times(ashi, start, idx)
+        plt.figure(0)
+
+    def showH4(self, event):
+        logtext = 'see 4H'
+        dp.writelog(logtext)
+        i = self.ind
+        ashi = "4h"
+        start, idx = self.prepare_times(ashi,i)
+        self.show_times(ashi, start, idx)
+        plt.figure(0)
+
+    def showD1(self, event):
+        logtext = 'see 1D'
+        dp.writelog(logtext)
+        i = self.ind
+        ashi = "1d"
+        start, idx = self.prepare_times(ashi,i)
+        self.show_times(ashi, start, idx)
+        plt.figure(0)
+
+    def showM1(self, event):
+        logtext = 'see 1M'
+        dp.writelog(logtext)
+        self.oneMind += 1
+        i = self.ind
+        diff = self.oneMind - 1
+        ashi = "1m"
+        start, idx = self.prepare_times(ashi,i)
+        idx = idx + diff
+        self.oneMprice = round(df[ashi].closePrice[idx-1],5)
+        self.oneMnow = df[ashi].index[idx-1]
+        self.show_times(ashi, start, idx)
+        plt.figure(0)
 
 plt.figure(0)
 
