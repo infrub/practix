@@ -441,7 +441,6 @@ class Index(object):
         self.show_times(ashi, start, idx)
         plt.figure(0)
 
-plt.figure(0)
 
 callback = Index()
 axprev = plt.axes([0.7, 0.0, 0.1, 0.075])
