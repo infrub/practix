@@ -10,7 +10,7 @@ def spnm(pair):
 		return 100.0, 0.5
 
 def writelog(text):
-	oup = open("loglog.dat","a")
+	oup = open("logs/loglog.dat","a")
 	logtext = text + '\n'
 	oup.write(logtext)
 	oup.close()
