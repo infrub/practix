@@ -22,7 +22,7 @@ nomalize,spread = dp.spnm(pair)
 year = 2018
 month = 9
 
-initial_text = open("nikki.txt").readlines()[-1]
+initial_text = open("logs/nikki.txt").readlines()[-1]
 flamesize = 144
 
 dfs = {}
