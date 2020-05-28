@@ -382,7 +382,7 @@ class Index(object):
 
     def get_func_of_switch_ashi(self, ashi):
         def switch(event):
-            dp.writelog("saw "+ashi)
+            dp.writelog("switch_ashi "+ashi)
             i = self.ind
             start, idx = self.prepare_times(ashi,i)
             self.show_times(ashi, start, idx)
@@ -392,53 +392,48 @@ class Index(object):
 
 
 callback = Index()
-axprev = plt.axes([0.7, 0.0, 0.1, 0.075])
-axnext = plt.axes([0.81, 0.0, 0.1, 0.075])
-axbuy = plt.axes([0.0, 0.0, 0.1, 0.075])
-axsell = plt.axes([0.11, 0.0, 0.1, 0.075])
-axexit = plt.axes([0.22, 0.0, 0.1, 0.075])
 
-bnext = Button(axnext, 'Next',color = 'black')
-bnext.on_clicked(callback.next)
-bprev = Button(axprev, 'Previous',color = 'black')
-bprev.on_clicked(callback.prev)
-bbuy = Button(axbuy, 'Buy',color = 'black')
-bbuy.on_clicked(callback.buy)
-bsell = Button(axsell, 'Sell',color = 'black')
-bsell.on_clicked(callback.sell)
-bexit = Button(axexit, 'Exit',color = 'black')
-bexit.on_clicked(callback.exit)
 
-axoneMbuy = plt.axes([0.0, 0.11, 0.1, 0.035])
-axoneMsell = plt.axes([0.11, 0.11, 0.1, 0.035])
-axoneMexit = plt.axes([0.22, 0.11, 0.1, 0.035])
 
-boneMbuy = Button(axoneMbuy, '1Buy',color = 'black')
-boneMbuy.on_clicked(callback.oneMbuy)
-boneMsell = Button(axoneMsell, '1Sell',color = 'black')
-boneMsell.on_clicked(callback.oneMsell)
-boneMexit = Button(axoneMexit, '1Exit',color = 'black')
-boneMexit.on_clicked(callback.oneMexit)
+# ボタンを設置。冗長だがボタンを入れた変数の束縛がなくなるとボタンが働かなくなるので仕方ない
 
-axM15 = plt.axes([0.33, 0.04, 0.1, 0.035])
-bM15 = Button(axM15, 'M15',color = 'black')
-bM15.on_clicked(callback.get_func_of_switch_ashi("15m"))
+btn_prev = Button(plt.axes([0.7, 0.0, 0.1, 0.075]), 'Previous',color = 'black')
+btn_prev.on_clicked(callback.prev)
+btn_next = Button(plt.axes([0.81, 0.0, 0.1, 0.075]), 'Next',color = 'black')
+btn_next.on_clicked(callback.next)
 
-axM60 = plt.axes([0.33, 0, 0.1, 0.035])
-bM60 = Button(axM60, 'M60',color = 'black')
-bM60.on_clicked(callback.get_func_of_switch_ashi("60m"))
+btn_buy = Button(plt.axes([0.0, 0.0, 0.1, 0.075]), 'Buy',color = 'black')
+btn_buy.on_clicked(callback.buy)
+btn_sell = Button(plt.axes([0.11, 0.0, 0.1, 0.075]), 'Sell',color = 'black')
+btn_sell.on_clicked(callback.sell)
+btn_exit = Button(plt.axes([0.22, 0.0, 0.1, 0.075]), 'Exit',color = 'black')
+btn_exit.on_clicked(callback.exit)
 
-axH4 = plt.axes([0.44, 0.04, 0.1, 0.035])
-bH4 = Button(axH4, 'H4',color = 'black')
-bH4.on_clicked(callback.get_func_of_switch_ashi("4h"))
+btn_1mbuy = Button(plt.axes([0.0, 0.11, 0.1, 0.035]), '1Buy',color = 'black')
+btn_1mbuy.on_clicked(callback.oneMbuy)
+btn_1msell = Button(plt.axes([0.11, 0.11, 0.1, 0.035]), '1Sell',color = 'black')
+btn_1msell.on_clicked(callback.oneMsell)
+btn_1mexit = Button(plt.axes([0.22, 0.11, 0.1, 0.035]), '1Exit',color = 'black')
+btn_1mexit.on_clicked(callback.oneMexit)
 
-axD1 = plt.axes([0.44, 0, 0.1, 0.035])
-bD1 = Button(axD1, 'D1',color = 'black')
-bD1.on_clicked(callback.get_func_of_switch_ashi("1d"))
+btn_1m = Button(plt.axes([0.33, 0.04, 0.1, 0.035]), '1m',color = 'black')
+btn_1m.on_clicked(callback.get_func_of_switch_ashi("1m"))
+btn_5m = Button(plt.axes([0.44, 0.04, 0.1, 0.035]), '5m',color = 'black')
+btn_5m.on_clicked(callback.get_func_of_switch_ashi("5m"))
+btn_15m = Button(plt.axes([0.55, 0.04, 0.1, 0.035]), '15m',color = 'black')
+btn_15m.on_clicked(callback.get_func_of_switch_ashi("15m"))
 
-axM1 = plt.axes([0.55, 0, 0.1, 0.035])
-bM1 = Button(axM1, 'M1',color = 'black')
-bM1.on_clicked(callback.get_func_of_switch_ashi("1m"))
+btn_60m = Button(plt.axes([0.33, 0.00, 0.1, 0.035]), '60m',color = 'black')
+btn_60m.on_clicked(callback.get_func_of_switch_ashi("60m"))
+btn_4h = Button(plt.axes([0.44, 0.00, 0.1, 0.035]), '4h',color = 'black')
+btn_4h.on_clicked(callback.get_func_of_switch_ashi("4h"))
+btn_1d = Button(plt.axes([0.55, 0.00, 0.1, 0.035]), '1d',color = 'black')
+btn_1d.on_clicked(callback.get_func_of_switch_ashi("1d"))
+
+
+
+
+
 
 axbox = plt.axes([0.6, 0.08, 0.4, 0.035])
 
