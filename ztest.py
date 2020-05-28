@@ -379,55 +379,16 @@ class Index(object):
         logtext = 'exit at ' + str(extime)
         dp.writelog(logtext)
 
-    def showM15(self, event):
-        logtext = 'see 15M'
-        dp.writelog(logtext)
-        i = self.ind
-        ashi ="15m"
-        start, idx = self.prepare_times(ashi,i)
-        self.show_times(ashi, start, idx)
-        plt.figure(0)
+
+    def get_func_of_switch_ashi(self, ashi):
+        def switch(event):
+            dp.writelog("saw "+ashi)
+            i = self.ind
+            start, idx = self.prepare_times(ashi,i)
+            self.show_times(ashi, start, idx)
+            plt.figure(0)
+        return switch
         
-    def showM60(self, event):
-        logtext = 'see 60M'
-        dp.writelog(logtext)
-        i = self.ind
-        ashi = "60m"
-        start, idx = self.prepare_times(ashi,i)
-        self.show_times(ashi, start, idx)
-        plt.figure(0)
-
-    def showH4(self, event):
-        logtext = 'see 4H'
-        dp.writelog(logtext)
-        i = self.ind
-        ashi = "4h"
-        start, idx = self.prepare_times(ashi,i)
-        self.show_times(ashi, start, idx)
-        plt.figure(0)
-
-    def showD1(self, event):
-        logtext = 'see 1D'
-        dp.writelog(logtext)
-        i = self.ind
-        ashi = "1d"
-        start, idx = self.prepare_times(ashi,i)
-        self.show_times(ashi, start, idx)
-        plt.figure(0)
-
-    def showM1(self, event):
-        logtext = 'see 1M'
-        dp.writelog(logtext)
-        self.oneMind += 1
-        i = self.ind
-        diff = self.oneMind - 1
-        ashi = "1m"
-        start, idx = self.prepare_times(ashi,i)
-        idx = idx + diff
-        self.oneMprice = round(dfs[ashi].closePrice[idx-1],5)
-        self.oneMnow = dfs[ashi].index[idx-1]
-        self.show_times(ashi, start, idx)
-        plt.figure(0)
 
 
 callback = Index()
@@ -461,23 +422,23 @@ boneMexit.on_clicked(callback.oneMexit)
 
 axM15 = plt.axes([0.33, 0.04, 0.1, 0.035])
 bM15 = Button(axM15, 'M15',color = 'black')
-bM15.on_clicked(callback.showM15)
+bM15.on_clicked(callback.get_func_of_switch_ashi("15m"))
 
 axM60 = plt.axes([0.33, 0, 0.1, 0.035])
 bM60 = Button(axM60, 'M60',color = 'black')
-bM60.on_clicked(callback.showM60)
+bM60.on_clicked(callback.get_func_of_switch_ashi("60m"))
 
 axH4 = plt.axes([0.44, 0.04, 0.1, 0.035])
 bH4 = Button(axH4, 'H4',color = 'black')
-bH4.on_clicked(callback.showH4)
+bH4.on_clicked(callback.get_func_of_switch_ashi("4h"))
 
 axD1 = plt.axes([0.44, 0, 0.1, 0.035])
 bD1 = Button(axD1, 'D1',color = 'black')
-bD1.on_clicked(callback.showD1)
+bD1.on_clicked(callback.get_func_of_switch_ashi("1d"))
 
 axM1 = plt.axes([0.55, 0, 0.1, 0.035])
 bM1 = Button(axM1, 'M1',color = 'black')
-bM1.on_clicked(callback.showM1)
+bM1.on_clicked(callback.get_func_of_switch_ashi("1m"))
 
 axbox = plt.axes([0.6, 0.08, 0.4, 0.035])
 
