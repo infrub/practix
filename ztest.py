@@ -88,7 +88,7 @@ class Index(object):
     entrytime = dfs["5m"].index[0]
     entrypricetext = ' '
 
-    def prepare_times(self, ashi, i):
+    def uooooo(self, ashi, i):
         now = date2num(dfs["5m"].index[i+flamesize])
         fig = plt.figure(ashi)
         axs[ashi][1] = fig.add_axes((0.05,0.15,0.9,0.2))
@@ -100,9 +100,6 @@ class Index(object):
         if(start<0):
             start = 0
 
-        return start,idx
-
-    def show_times(self, ashi,start, idx):
         start = idx-flamesize
         if(start<0):
             start = 0
@@ -150,8 +147,7 @@ class Index(object):
         def switch(event):
             dp.writelog("switch_ashi "+ashi)
             i = self.ind
-            start, idx = self.prepare_times(ashi,i)
-            self.show_times(ashi, start, idx)
+            self.uooooo(ashi,i)
             plt.figure(0)
         return switch
 
