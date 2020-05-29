@@ -93,44 +93,41 @@ class Index(object):
         fig = plt.figure(ashi)
         axs[ashi][1] = fig.add_axes((0.05,0.15,0.9,0.2))
         axs[ashi][0] = fig.add_axes((0.05,0.35,0.9,0.6),sharex=axs[ashi][1])
-        lex_in_this_ashi = np.abs(np.asarray(date2num(dfs[ashi].index)) - self.redn).argmin() + 1
+        rex_in_this_ashi = np.abs(np.asarray(date2num(dfs[ashi].index)) - self.redn).argmin() + 1
 
-        if (date2num(dfs[ashi].index[lex_in_this_ashi]) - self.redn > 0):
-            lex_in_this_ashi = lex_in_this_ashi-1
-        start = lex_in_this_ashi-flamesize
-        if(start<0):
-            start = 0
+        if (date2num(dfs[ashi].index[rex_in_this_ashi]) - self.redn > 0):
+            rex_in_this_ashi = rex_in_this_ashi-1
+        lex_in_this_ashi = rex_in_this_ashi-flamesize
+        if(lex_in_this_ashi<0):
+            lex_in_this_ashi = 0
 
-        start = lex_in_this_ashi-flamesize
-        if(start<0):
-            start = 0
-        nowdf = dfs[ashi][start:lex_in_this_ashi]
+        nowdf = dfs[ashi][lex_in_this_ashi:rex_in_this_ashi]
 
         mpf.candlestick2_ohlc_indexed_by_openTime(axs[ashi][0], nowdf.openPrice, nowdf.highPrice, nowdf.lowPrice, nowdf.closePrice, width=0.8, alpha=1.0, colorup='#FF0000', colordown='g')
-        axs[ashi][0].scatter(idxs[ashi][0:lex_in_this_ashi-start], nowdf.MA_mid, s = 1)
-        axs[ashi][0].scatter(idxs[ashi][0:lex_in_this_ashi-start], nowdf.MA_short, s = 1)
-        axs[ashi][0].scatter(idxs[ashi][0:lex_in_this_ashi-start], nowdf.MA_long, s = 1)
-        yhani = dfs[ashi].closePrice[start:lex_in_this_ashi]
+        axs[ashi][0].scatter(idxs[ashi][0:rex_in_this_ashi-lex_in_this_ashi], nowdf.MA_mid, s = 1)
+        axs[ashi][0].scatter(idxs[ashi][0:rex_in_this_ashi-lex_in_this_ashi], nowdf.MA_short, s = 1)
+        axs[ashi][0].scatter(idxs[ashi][0:rex_in_this_ashi-lex_in_this_ashi], nowdf.MA_long, s = 1)
+        yhani = dfs[ashi].closePrice[lex_in_this_ashi:rex_in_this_ashi]
         axs[ashi][0].set_ylim(min(yhani)-buff,max(yhani)+buff)
         axs[ashi][0].grid(True,linestyle='dotted')
-        axs[ashi][0].set_xlim(0,lex_in_this_ashi-start)
-        axs[ashi][0].set_xticks(idxs[ashi][0:lex_in_this_ashi-start:trip])
-        axs[ashi][0].set_xticklabels(dfs[ashi].index[start:lex_in_this_ashi:trip].strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
+        axs[ashi][0].set_xlim(0,rex_in_this_ashi-lex_in_this_ashi)
+        axs[ashi][0].set_xticks(idxs[ashi][0:rex_in_this_ashi-lex_in_this_ashi:trip])
+        axs[ashi][0].set_xticklabels(dfs[ashi].index[lex_in_this_ashi:rex_in_this_ashi:trip].strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
 
-        main = dfs[ashi].macd_main[start:lex_in_this_ashi].shift()
-        signal = dfs[ashi].macd_signal[start:lex_in_this_ashi].shift()
-        axs[ashi][1].plot(idxs[ashi][0:lex_in_this_ashi-start], main)
-        axs[ashi][1].plot(idxs[ashi][0:lex_in_this_ashi-start], signal)
-        mainhani = dfs[ashi].macd_main[start:lex_in_this_ashi]
-        signalhani = dfs[ashi].macd_signal[start:lex_in_this_ashi]
+        main = dfs[ashi].macd_main[lex_in_this_ashi:rex_in_this_ashi].shift()
+        signal = dfs[ashi].macd_signal[lex_in_this_ashi:rex_in_this_ashi].shift()
+        axs[ashi][1].plot(idxs[ashi][0:rex_in_this_ashi-lex_in_this_ashi], main)
+        axs[ashi][1].plot(idxs[ashi][0:rex_in_this_ashi-lex_in_this_ashi], signal)
+        mainhani = dfs[ashi].macd_main[lex_in_this_ashi:rex_in_this_ashi]
+        signalhani = dfs[ashi].macd_signal[lex_in_this_ashi:rex_in_this_ashi]
         y1hani = mainhani+signalhani
         axs[ashi][1].set_ylim(min(y1hani)-buff*0.01,max(y1hani)+buff*0.01)
         axs[ashi][1].grid(True,linestyle='dotted')
         axs[ashi][1].tick_params(labelbottom=False)
 
-        nowpricetext = str(round(dfs[ashi].closePrice[lex_in_this_ashi-1],5))
+        nowpricetext = str(round(dfs[ashi].closePrice[rex_in_this_ashi-1],5))
         if(self.entrypricetext!=''):
-            pips = self.entrytype*(round((dfs[ashi].closePrice[lex_in_this_ashi-1]-self.entryprice)*nomalize,3))-spread
+            pips = self.entrytype*(round((dfs[ashi].closePrice[rex_in_this_ashi-1]-self.entryprice)*nomalize,3))-spread
             pipstext = str(pips)
             pricetext = 'pips:' + pipstext + "\n" + 'entryprice:' + self.entrypricetext + "\n" +'nowprice:' + nowpricetext
         else:
