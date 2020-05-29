@@ -62,16 +62,15 @@ for ashi in ashis:
 
 
 
+buff = 5.0e-04*dfs["5m"].closePrice[0]
+
 
 
 class Index(object):
     lex_in_5m = 0 # 5mグラフにおける左端のx座標 left edge x-cood
     redn = date2num(dfs["5m"].index[0+flamesize]) # 5mグラフにおける右端のx座標が表す時間を数値化したもの right edge datetime number
-    oneMind = 0
     entrytype = 0
     entryprice = 0
-    oneMprice = 0
-    oneMnow = dfs["1m"].index[0]
     entrytime = dfs["5m"].index[0]
     entrypricetext = ' '
     watching_ashi = "60m"
@@ -94,7 +93,6 @@ class Index(object):
         signalhani = dfs[ashi].macd_signal[0:flamesize]
         y1hani = mainhani+signalhani
 
-        buff = 5.0e-04*dfs[ashi].closePrice[0]
         mac_axs[ashi].set_ylim(min(y1hani)-buff*0.01,max(y1hani)+buff*0.01)
         mac_axs[ashi].grid(True,linestyle='dotted')
         mac_axs[ashi].tick_params(labelbottom=False)
@@ -134,7 +132,6 @@ class Index(object):
         candle_axs[ashi].scatter(idxs[ashi][0:rex_in_this_ashi-lex_in_this_ashi], nowdf.MA_long, s = 1)
         yhani = dfs[ashi].closePrice[lex_in_this_ashi:rex_in_this_ashi]
 
-        buff = 5.0e-04*dfs[ashi].closePrice[0]
         candle_axs[ashi].set_ylim(min(yhani)-buff,max(yhani)+buff)
         candle_axs[ashi].grid(True,linestyle='dotted')
         candle_axs[ashi].set_xlim(0,rex_in_this_ashi-lex_in_this_ashi)
@@ -166,8 +163,6 @@ class Index(object):
 
 
 
-
-
     def get_func_of_switch_ashi(self, ashi):
         def switch(event):
             dp.writelog("switch_ashi "+ashi)
@@ -187,7 +182,6 @@ class Index(object):
         i = self.lex_in_5m
         self.redn = date2num(dfs["5m"].index[i+flamesize])
 
-        self.oneMind = 0
         ashi = "5m"
         candle_axs[ashi].set_xlim(i,i+flamesize)
         candle_axs[ashi].set_xticks(idxs[ashi][i:i+flamesize:trip])
