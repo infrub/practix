@@ -184,8 +184,6 @@ class Index(object):
         axs[ashi][0].text(0.05,0.85,pricetext,transform=axs["5m"][0].transAxes)
         plt.draw()
 
-
-
     def next(self, event):
         self.move_lex_in_5m(self.lex_in_5m+1)
         dp.writelog("next")
