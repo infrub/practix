@@ -90,8 +90,6 @@ class Index(object):
     entrypricetext = ' '
 
     def uooooo(self, ashi):
-        i = self.lex_in_5m
-        self.redn = date2num(dfs["5m"].index[i+flamesize])
         fig = plt.figure(ashi)
         axs[ashi][1] = fig.add_axes((0.05,0.15,0.9,0.2))
         axs[ashi][0] = fig.add_axes((0.05,0.35,0.9,0.6),sharex=axs[ashi][1])
