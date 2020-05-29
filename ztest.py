@@ -22,7 +22,7 @@ nomalize,spread = dp.spnm(pair)
 year = 2018
 month = 9
 
-initial_text = open("logs/nikki.txt").readlines()[-1]
+initial_time_text = open("logs/nikki.txt").readlines()[-1]
 flamesize = 144
 
 dfs = {}
@@ -147,36 +147,19 @@ class Index(object):
 
         plt.show()
     
-    def submit(self, text):
-        ashi = "5m"
-        date = text
-        future = date2num(dt.strptime(date, '%Y-%m-%d %H:%M'))
-        idx = np.abs(np.asarray(date2num(dfs[ashi].index)) - future).argmin() + 1
-        i = idx - flamesize
-        self.ind = i
-        axs[ashi][0].set_xlim(idxs[ashi][i],idxs[ashi][i+flamesize])
-        axs[ashi][0].set_xticks(idxs[ashi][i:i+flamesize:trip])
-        axs[ashi][0].set_xticklabels(dfs[ashi].index[i:i+flamesize:trip].strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
-        yhani = dfs[ashi].closePrice[i:i+flamesize]
-        axs[ashi][0].set_ylim(min(yhani)-buff,max(yhani)+buff)
-        #axs[ashi][0].grid(True,linestyle='dotted')
-        mainhani = dfs[ashi].macd_main[i:i+flamesize]
-        signalhani = dfs[ashi].macd_signal[i:i+flamesize]
-        y1hani = mainhani+signalhani
 
-        axs[ashi][1].set_ylim(min(y1hani)-buff*0.01,max(y1hani)+buff*0.01)
-        axs[ashi][1].grid(True,linestyle='dotted')
-        axs[ashi][1].tick_params(labelbottom=False)
 
-        nowpricetext = str(round(dfs[ashi].closePrice[i+flamesize-1],5))
-        enpricetext = ''
-        pricetext = 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
-        for txt in axs["5m"][0].texts:
-            txt.set_visible(False)
-        axs[ashi][0].text(0.05,0.85,pricetext,transform=axs["5m"][0].transAxes)
-        plt.draw()
-        logtext = 'move to ' + str(date)
-        dp.writelog(logtext)
+
+    def get_func_of_switch_ashi(self, ashi):
+        def switch(event):
+            dp.writelog("switch_ashi "+ashi)
+            i = self.ind
+            start, idx = self.prepare_times(ashi,i)
+            self.show_times(ashi, start, idx)
+            plt.figure(0)
+        return switch
+
+
 
     def next(self, event):
         self.ind += 1
@@ -249,6 +232,39 @@ class Index(object):
         dp.writelog(logtext)
 
 
+    def skip_to_time(self, text):
+        ashi = "5m"
+        date = text
+        future = date2num(dt.strptime(date, '%Y-%m-%d %H:%M'))
+        idx = np.abs(np.asarray(date2num(dfs[ashi].index)) - future).argmin() + 1
+        i = idx - flamesize
+        self.ind = i
+        axs[ashi][0].set_xlim(idxs[ashi][i],idxs[ashi][i+flamesize])
+        axs[ashi][0].set_xticks(idxs[ashi][i:i+flamesize:trip])
+        axs[ashi][0].set_xticklabels(dfs[ashi].index[i:i+flamesize:trip].strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
+        yhani = dfs[ashi].closePrice[i:i+flamesize]
+        axs[ashi][0].set_ylim(min(yhani)-buff,max(yhani)+buff)
+        #axs[ashi][0].grid(True,linestyle='dotted')
+        mainhani = dfs[ashi].macd_main[i:i+flamesize]
+        signalhani = dfs[ashi].macd_signal[i:i+flamesize]
+        y1hani = mainhani+signalhani
+
+        axs[ashi][1].set_ylim(min(y1hani)-buff*0.01,max(y1hani)+buff*0.01)
+        axs[ashi][1].grid(True,linestyle='dotted')
+        axs[ashi][1].tick_params(labelbottom=False)
+
+        nowpricetext = str(round(dfs[ashi].closePrice[i+flamesize-1],5))
+        enpricetext = ''
+        pricetext = 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
+        for txt in axs["5m"][0].texts:
+            txt.set_visible(False)
+        axs[ashi][0].text(0.05,0.85,pricetext,transform=axs["5m"][0].transAxes)
+        plt.draw()
+        logtext = 'move to ' + str(date)
+        dp.writelog(logtext)
+
+
+
     def buy(self, event):
         i = self.ind
         self.entryprice = dfs["5m"].closePrice[i+flamesize-1]
@@ -281,39 +297,6 @@ class Index(object):
         logtext = 'sell at ' + str(dfs["5m"].index[i+flamesize-1])
         dp.writelog(logtext)
 
-    def oneMbuy(self, event):
-
-        self.entryprice = self.oneMprice
-        self.entrypricetext = str(round(self.entryprice,5))
-        nowpricetext = self.entrypricetext
-        enpricetext = self.entrypricetext
-        pricetext = 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
-        for txt in axs["5m"][0].texts:
-            txt.set_visible(False)
-        axs["5m"][0].text(0.05,0.85,pricetext,transform=axs["5m"][0].transAxes)
-        self.entrytype = 1
-        self.entrytime = self.oneMnow
-
-        logtext = 'buy at ' + str(self.oneMnow)
-        dp.writelog(logtext)
-
-    def oneMsell(self, event):
-
-        self.entryprice = self.oneMprice
-        self.entrypricetext = str(round(self.entryprice,5))
-        nowpricetext = self.entrypricetext
-        enpricetext = self.entrypricetext
-        pricetext = 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
-        for txt in axs["5m"][0].texts:
-            txt.set_visible(False)
-        axs["5m"][0].text(0.05,0.85,pricetext,transform=axs["5m"][0].transAxes)
-        self.entrytype = -1
-        self.entrytime = self.oneMnow
-
-        logtext = 'sell at ' + str(self.oneMnow)
-        dp.writelog(logtext)
-
-
     def exit(self, event):
         i = self.ind
         enprice = self.entryprice
@@ -345,6 +328,39 @@ class Index(object):
         oup.close()
 
         logtext = 'exit at ' + str(extime)
+        dp.writelog(logtext)
+
+        
+    def oneMbuy(self, event):
+
+        self.entryprice = self.oneMprice
+        self.entrypricetext = str(round(self.entryprice,5))
+        nowpricetext = self.entrypricetext
+        enpricetext = self.entrypricetext
+        pricetext = 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
+        for txt in axs["5m"][0].texts:
+            txt.set_visible(False)
+        axs["5m"][0].text(0.05,0.85,pricetext,transform=axs["5m"][0].transAxes)
+        self.entrytype = 1
+        self.entrytime = self.oneMnow
+
+        logtext = 'buy at ' + str(self.oneMnow)
+        dp.writelog(logtext)
+
+    def oneMsell(self, event):
+
+        self.entryprice = self.oneMprice
+        self.entrypricetext = str(round(self.entryprice,5))
+        nowpricetext = self.entrypricetext
+        enpricetext = self.entrypricetext
+        pricetext = 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
+        for txt in axs["5m"][0].texts:
+            txt.set_visible(False)
+        axs["5m"][0].text(0.05,0.85,pricetext,transform=axs["5m"][0].transAxes)
+        self.entrytype = -1
+        self.entrytime = self.oneMnow
+
+        logtext = 'sell at ' + str(self.oneMnow)
         dp.writelog(logtext)
 
     def oneMexit(self, event):
@@ -380,14 +396,6 @@ class Index(object):
         dp.writelog(logtext)
 
 
-    def get_func_of_switch_ashi(self, ashi):
-        def switch(event):
-            dp.writelog("switch_ashi "+ashi)
-            i = self.ind
-            start, idx = self.prepare_times(ashi,i)
-            self.show_times(ashi, start, idx)
-            plt.figure(0)
-        return switch
         
 
 
@@ -396,6 +404,21 @@ callback = Index()
 
 
 # ボタンを設置。冗長だがボタンを入れた変数の束縛がなくなるとボタンが働かなくなるので仕方ない
+
+
+btn_1m = Button(plt.axes([0.33, 0.04, 0.1, 0.035]), '1m',color = 'black')
+btn_1m.on_clicked(callback.get_func_of_switch_ashi("1m"))
+btn_5m = Button(plt.axes([0.44, 0.04, 0.1, 0.035]), '5m',color = 'black')
+btn_5m.on_clicked(callback.get_func_of_switch_ashi("5m"))
+btn_15m = Button(plt.axes([0.55, 0.04, 0.1, 0.035]), '15m',color = 'black')
+btn_15m.on_clicked(callback.get_func_of_switch_ashi("15m"))
+
+btn_60m = Button(plt.axes([0.33, 0.00, 0.1, 0.035]), '60m',color = 'black')
+btn_60m.on_clicked(callback.get_func_of_switch_ashi("60m"))
+btn_4h = Button(plt.axes([0.44, 0.00, 0.1, 0.035]), '4h',color = 'black')
+btn_4h.on_clicked(callback.get_func_of_switch_ashi("4h"))
+btn_1d = Button(plt.axes([0.55, 0.00, 0.1, 0.035]), '1d',color = 'black')
+btn_1d.on_clicked(callback.get_func_of_switch_ashi("1d"))
 
 btn_prev = Button(plt.axes([0.7, 0.0, 0.1, 0.075]), 'Previous',color = 'black')
 btn_prev.on_clicked(callback.prev)
@@ -416,28 +439,7 @@ btn_1msell.on_clicked(callback.oneMsell)
 btn_1mexit = Button(plt.axes([0.22, 0.11, 0.1, 0.035]), '1Exit',color = 'black')
 btn_1mexit.on_clicked(callback.oneMexit)
 
-btn_1m = Button(plt.axes([0.33, 0.04, 0.1, 0.035]), '1m',color = 'black')
-btn_1m.on_clicked(callback.get_func_of_switch_ashi("1m"))
-btn_5m = Button(plt.axes([0.44, 0.04, 0.1, 0.035]), '5m',color = 'black')
-btn_5m.on_clicked(callback.get_func_of_switch_ashi("5m"))
-btn_15m = Button(plt.axes([0.55, 0.04, 0.1, 0.035]), '15m',color = 'black')
-btn_15m.on_clicked(callback.get_func_of_switch_ashi("15m"))
-
-btn_60m = Button(plt.axes([0.33, 0.00, 0.1, 0.035]), '60m',color = 'black')
-btn_60m.on_clicked(callback.get_func_of_switch_ashi("60m"))
-btn_4h = Button(plt.axes([0.44, 0.00, 0.1, 0.035]), '4h',color = 'black')
-btn_4h.on_clicked(callback.get_func_of_switch_ashi("4h"))
-btn_1d = Button(plt.axes([0.55, 0.00, 0.1, 0.035]), '1d',color = 'black')
-btn_1d.on_clicked(callback.get_func_of_switch_ashi("1d"))
-
-
-
-
-
-
-axbox = plt.axes([0.6, 0.08, 0.4, 0.035])
-
-text_box = TextBox(axbox, '', color = 'green', initial = initial_text)
-text_box.on_submit(callback.submit)
+tbx_skip = TextBox(plt.axes([0.6, 0.08, 0.4, 0.035]), '', color = 'green', initial = initial_time_text)
+tbx_skip.on_submit(callback.skip_to_time)
 
 plt.show()
