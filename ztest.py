@@ -79,8 +79,8 @@ axs[ashi][0].grid(True,linestyle='dotted')
 
 
 class Index(object):
-    x_in_5m = 0 # 5mグラフにおける左端のx座標
-    now_dn = date2num(dfs["5m"].index[flamesize]) # 5mグラフにおける右端のx座標が表す時間を数値化したもの
+    lex_in_5m = 0 # 5mグラフにおける左端のx座標 left edge x-cood
+    redn = date2num(dfs["5m"].index[0+flamesize]) # 5mグラフにおける右端のx座標が表す時間を数値化したもの right edge datetime number
     oneMind = 0
     entrytype = 0
     entryprice = 0
@@ -90,49 +90,49 @@ class Index(object):
     entrypricetext = ' '
 
     def uooooo(self, ashi):
-        i = self.x_in_5m
-        self.now_dn = date2num(dfs["5m"].index[i+flamesize])
+        i = self.lex_in_5m
+        self.redn = date2num(dfs["5m"].index[i+flamesize])
         fig = plt.figure(ashi)
         axs[ashi][1] = fig.add_axes((0.05,0.15,0.9,0.2))
         axs[ashi][0] = fig.add_axes((0.05,0.35,0.9,0.6),sharex=axs[ashi][1])
-        x_in_this_ashi = np.abs(np.asarray(date2num(dfs[ashi].index)) - self.now_dn).argmin() + 1
+        lex_in_this_ashi = np.abs(np.asarray(date2num(dfs[ashi].index)) - self.redn).argmin() + 1
 
-        if (date2num(dfs[ashi].index[x_in_this_ashi]) - self.now_dn > 0):
-            x_in_this_ashi = x_in_this_ashi-1
-        start = x_in_this_ashi-flamesize
+        if (date2num(dfs[ashi].index[lex_in_this_ashi]) - self.redn > 0):
+            lex_in_this_ashi = lex_in_this_ashi-1
+        start = lex_in_this_ashi-flamesize
         if(start<0):
             start = 0
 
-        start = x_in_this_ashi-flamesize
+        start = lex_in_this_ashi-flamesize
         if(start<0):
             start = 0
-        nowdf = dfs[ashi][start:x_in_this_ashi]
+        nowdf = dfs[ashi][start:lex_in_this_ashi]
 
         mpf.candlestick2_ohlc_indexed_by_openTime(axs[ashi][0], nowdf.openPrice, nowdf.highPrice, nowdf.lowPrice, nowdf.closePrice, width=0.8, alpha=1.0, colorup='#FF0000', colordown='g')
-        axs[ashi][0].scatter(idxs[ashi][0:x_in_this_ashi-start], nowdf.MA_mid, s = 1)
-        axs[ashi][0].scatter(idxs[ashi][0:x_in_this_ashi-start], nowdf.MA_short, s = 1)
-        axs[ashi][0].scatter(idxs[ashi][0:x_in_this_ashi-start], nowdf.MA_long, s = 1)
-        yhani = dfs[ashi].closePrice[start:x_in_this_ashi]
+        axs[ashi][0].scatter(idxs[ashi][0:lex_in_this_ashi-start], nowdf.MA_mid, s = 1)
+        axs[ashi][0].scatter(idxs[ashi][0:lex_in_this_ashi-start], nowdf.MA_short, s = 1)
+        axs[ashi][0].scatter(idxs[ashi][0:lex_in_this_ashi-start], nowdf.MA_long, s = 1)
+        yhani = dfs[ashi].closePrice[start:lex_in_this_ashi]
         axs[ashi][0].set_ylim(min(yhani)-buff,max(yhani)+buff)
         axs[ashi][0].grid(True,linestyle='dotted')
-        axs[ashi][0].set_xlim(0,x_in_this_ashi-start)
-        axs[ashi][0].set_xticks(idxs[ashi][0:x_in_this_ashi-start:trip])
-        axs[ashi][0].set_xticklabels(dfs[ashi].index[start:x_in_this_ashi:trip].strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
+        axs[ashi][0].set_xlim(0,lex_in_this_ashi-start)
+        axs[ashi][0].set_xticks(idxs[ashi][0:lex_in_this_ashi-start:trip])
+        axs[ashi][0].set_xticklabels(dfs[ashi].index[start:lex_in_this_ashi:trip].strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
 
-        main = dfs[ashi].macd_main[start:x_in_this_ashi].shift()
-        signal = dfs[ashi].macd_signal[start:x_in_this_ashi].shift()
-        axs[ashi][1].plot(idxs[ashi][0:x_in_this_ashi-start], main)
-        axs[ashi][1].plot(idxs[ashi][0:x_in_this_ashi-start], signal)
-        mainhani = dfs[ashi].macd_main[start:x_in_this_ashi]
-        signalhani = dfs[ashi].macd_signal[start:x_in_this_ashi]
+        main = dfs[ashi].macd_main[start:lex_in_this_ashi].shift()
+        signal = dfs[ashi].macd_signal[start:lex_in_this_ashi].shift()
+        axs[ashi][1].plot(idxs[ashi][0:lex_in_this_ashi-start], main)
+        axs[ashi][1].plot(idxs[ashi][0:lex_in_this_ashi-start], signal)
+        mainhani = dfs[ashi].macd_main[start:lex_in_this_ashi]
+        signalhani = dfs[ashi].macd_signal[start:lex_in_this_ashi]
         y1hani = mainhani+signalhani
         axs[ashi][1].set_ylim(min(y1hani)-buff*0.01,max(y1hani)+buff*0.01)
         axs[ashi][1].grid(True,linestyle='dotted')
         axs[ashi][1].tick_params(labelbottom=False)
 
-        nowpricetext = str(round(dfs[ashi].closePrice[x_in_this_ashi-1],5))
+        nowpricetext = str(round(dfs[ashi].closePrice[lex_in_this_ashi-1],5))
         if(self.entrypricetext!=''):
-            pips = self.entrytype*(round((dfs[ashi].closePrice[x_in_this_ashi-1]-self.entryprice)*nomalize,3))-spread
+            pips = self.entrytype*(round((dfs[ashi].closePrice[lex_in_this_ashi-1]-self.entryprice)*nomalize,3))-spread
             pipstext = str(pips)
             pricetext = 'pips:' + pipstext + "\n" + 'entryprice:' + self.entrypricetext + "\n" +'nowprice:' + nowpricetext
         else:
@@ -155,10 +155,10 @@ class Index(object):
 
 
 
-    def move_x_in_5m(self, new_x_in_5m):
-        self.x_in_5m = new_x_in_5m
-        i = self.x_in_5m
-        self.now_dn = date2num(dfs["5m"].index[i+flamesize])
+    def move_lex_in_5m(self, new_lex_in_5m):
+        self.lex_in_5m = new_lex_in_5m
+        i = self.lex_in_5m
+        self.redn = date2num(dfs["5m"].index[i+flamesize])
 
         self.oneMind = 0
         ashi = "5m"
@@ -192,55 +192,24 @@ class Index(object):
 
 
     def next(self, event):
-        self.move_x_in_5m(self.x_in_5m+1)
+        self.move_lex_in_5m(self.lex_in_5m+1)
         dp.writelog("next")
 
     def prev(self, event):
-        self.move_x_in_5m(self.x_in_5m-1)
+        self.move_lex_in_5m(self.lex_in_5m-1)
         dp.writelog("prev")
 
-
-    def skip_to_time(self, date_text):
-        date = date_text
-        future = date2num(dt.strptime(date, '%Y-%m-%d %H:%M'))
-        x_in_this_ashi = np.abs(np.asarray(date2num(dfs[ashi].index)) - future).argmin() + 1
-        i = x_in_this_ashi - flamesize
-        self.x_in_5m = i
-
-        ashi = "5m"
-
-
-        axs[ashi][0].set_xlim(i,i+flamesize)
-        axs[ashi][0].set_xticks(idxs[ashi][i:i+flamesize:trip])
-        axs[ashi][0].set_xticklabels(dfs[ashi].index[i:i+flamesize:trip].strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
-        yhani = dfs[ashi].closePrice[i:i+flamesize]
-        axs[ashi][0].set_ylim(min(yhani)-buff,max(yhani)+buff)
-        #axs[ashi][0].grid(True,linestyle='dotted')
-        mainhani = dfs[ashi].macd_main[i:i+flamesize]
-        signalhani = dfs[ashi].macd_signal[i:i+flamesize]
-        y1hani = mainhani+signalhani
-
-        axs[ashi][1].set_ylim(min(y1hani)-buff*0.01,max(y1hani)+buff*0.01)
-        axs[ashi][1].grid(True,linestyle='dotted')
-        axs[ashi][1].tick_params(labelbottom=False)
-
-        nowpricetext = str(round(dfs[ashi].closePrice[i+flamesize-1],5))
-        enpricetext = ''
-        pricetext = 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
-        for txt in axs["5m"][0].texts:
-            txt.set_visible(False)
-        axs[ashi][0].text(0.05,0.85,pricetext,transform=axs["5m"][0].transAxes)
-        plt.draw()
-
-
-
-        logtext = 'skip_to_time ' + str(date)
-        dp.writelog(logtext)
+    def skip_to_time(self, date_text): 
+        dn = date2num(dt.strptime(date_text, '%Y-%m-%d %H:%M'))
+        new_rex_in_5m = np.abs(np.asarray(date2num(dfs[ashi].index)) - dn).argmin() + 1
+        new_lex_in_5m = new_rex_in_5m - flamesize
+        self.move_lex_in_5m(new_lex_in_5m)
+        dp.writelog('skip_to_time ' + date_text)
 
 
 
     def buy(self, event):
-        i = self.x_in_5m
+        i = self.lex_in_5m
         self.entryprice = dfs["5m"].closePrice[i+flamesize-1]
         self.entrypricetext = str(round(self.entryprice,5))
         nowpricetext = str(round(dfs["5m"].closePrice[i+flamesize-1],5))
@@ -256,7 +225,7 @@ class Index(object):
         dp.writelog(logtext)
 
     def sell(self, event):
-        i = self.x_in_5m
+        i = self.lex_in_5m
         self.entryprice = dfs["5m"].closePrice[i+flamesize-1]
         self.entrypricetext = str(round(self.entryprice,5))
         nowpricetext = str(round(dfs["5m"].closePrice[i+flamesize-1],5))
@@ -272,7 +241,7 @@ class Index(object):
         dp.writelog(logtext)
 
     def exit(self, event):
-        i = self.x_in_5m
+        i = self.lex_in_5m
         enprice = self.entryprice
         etype = self.entrytype
         exprice = dfs["5m"].closePrice[i+flamesize-1]
