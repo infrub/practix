@@ -61,48 +61,6 @@ for ashi in ashis:
 
 
 
-ashi = "5m"
-fig.add_axes(mac_axs[ashi])
-fig.add_axes(candle_axs[ashi])
-
-nowpricetext = str(round(dfs[ashi].closePrice[flamesize-1],5))
-entrypricetext = ''
-pricetext = 'entryprice:' + entrypricetext + "\n" +'nowprice:' + nowpricetext
-candle_axs[ashi].text(0.05,0.85,pricetext,transform=candle_axs[ashi].transAxes)
-
-mac_main = dfs[ashi].macd_main.shift()
-mac_signal = dfs[ashi].macd_signal.shift()
-mac_axs[ashi].plot(idxs[ashi], mac_main, linewidth = lw)
-mac_axs[ashi].plot(idxs[ashi], mac_signal, linewidth = lw)
-mainhani = dfs[ashi].macd_main[0:flamesize]
-signalhani = dfs[ashi].macd_signal[0:flamesize]
-y1hani = mainhani+signalhani
-
-buff = 5.0e-04*dfs["5m"].closePrice[0]
-mac_axs[ashi].set_ylim(min(y1hani)-buff*0.01,max(y1hani)+buff*0.01)
-mac_axs[ashi].grid(True,linestyle='dotted')
-mac_axs[ashi].tick_params(labelbottom=False)
-
-mpf.candlestick2_ohlc_indexed_by_openTime(candle_axs[ashi], dfs[ashi].openPrice, dfs[ashi].highPrice, dfs[ashi].lowPrice, dfs[ashi].closePrice, width=0.8, alpha=1.0, colorup='#FF0000', colordown='g')
-MAmid = dfs[ashi].MA_mid.shift()
-MAshort = dfs[ashi].MA_short.shift()
-MAlong = dfs[ashi].MA_long.shift()
-candle_axs[ashi].scatter(idxs[ashi], MAmid, s=1)
-candle_axs[ashi].scatter(idxs[ashi], MAshort, s=1)
-candle_axs[ashi].scatter(idxs[ashi], MAlong, s=1)
-
-candle_axs[ashi].set_xlim(0,flamesize)
-candle_axs[ashi].set_xticks(idxs[ashi][0:flamesize:trip])
-candle_axs[ashi].set_xticklabels(dfs[ashi].index[0:flamesize:trip].strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
-
-yhani = dfs[ashi].closePrice[0:flamesize]
-candle_axs[ashi].set_ylim(min(yhani)-buff,max(yhani)+buff)
-candle_axs[ashi].grid(True,linestyle='dotted')
-
-
-
-fig.add_axes(mac_axs["60m"])
-fig.add_axes(candle_axs["60m"])
 
 
 
@@ -119,13 +77,47 @@ class Index(object):
     watching_ashi = "60m"
 
 
-    def uooooo(self, ashi):
-        fig.delaxes(mac_axs[self.watching_ashi])
-        fig.delaxes(candle_axs[self.watching_ashi])
-        self.watching_ashi = ashi
-        fig.add_axes(mac_axs[ashi])
-        fig.add_axes(candle_axs[ashi])
 
+
+
+    def create_aax(self, ashi):
+        nowpricetext = str(round(dfs[ashi].closePrice[flamesize-1],5))
+        entrypricetext = ''
+        pricetext = 'entryprice:' + entrypricetext + "\n" +'nowprice:' + nowpricetext
+        candle_axs[ashi].text(0.05,0.85,pricetext,transform=candle_axs[ashi].transAxes)
+
+        mac_main = dfs[ashi].macd_main.shift()
+        mac_signal = dfs[ashi].macd_signal.shift()
+        mac_axs[ashi].plot(idxs[ashi], mac_main, linewidth = lw)
+        mac_axs[ashi].plot(idxs[ashi], mac_signal, linewidth = lw)
+        mainhani = dfs[ashi].macd_main[0:flamesize]
+        signalhani = dfs[ashi].macd_signal[0:flamesize]
+        y1hani = mainhani+signalhani
+
+        buff = 5.0e-04*dfs[ashi].closePrice[0]
+        mac_axs[ashi].set_ylim(min(y1hani)-buff*0.01,max(y1hani)+buff*0.01)
+        mac_axs[ashi].grid(True,linestyle='dotted')
+        mac_axs[ashi].tick_params(labelbottom=False)
+
+        mpf.candlestick2_ohlc_indexed_by_openTime(candle_axs[ashi], dfs[ashi].openPrice, dfs[ashi].highPrice, dfs[ashi].lowPrice, dfs[ashi].closePrice, width=0.8, alpha=1.0, colorup='#FF0000', colordown='g')
+        MAmid = dfs[ashi].MA_mid.shift()
+        MAshort = dfs[ashi].MA_short.shift()
+        MAlong = dfs[ashi].MA_long.shift()
+        candle_axs[ashi].scatter(idxs[ashi], MAmid, s=1)
+        candle_axs[ashi].scatter(idxs[ashi], MAshort, s=1)
+        candle_axs[ashi].scatter(idxs[ashi], MAlong, s=1)
+
+        candle_axs[ashi].set_xlim(0,flamesize)
+        candle_axs[ashi].set_xticks(idxs[ashi][0:flamesize:trip])
+        candle_axs[ashi].set_xticklabels(dfs[ashi].index[0:flamesize:trip].strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
+
+        yhani = dfs[ashi].closePrice[0:flamesize]
+        candle_axs[ashi].set_ylim(min(yhani)-buff,max(yhani)+buff)
+        candle_axs[ashi].grid(True,linestyle='dotted')
+
+
+
+    def create_bax(self, ashi):
         rex_in_this_ashi = np.abs(np.asarray(date2num(dfs[ashi].index)) - self.redn).argmin() + 1
 
         if (date2num(dfs[ashi].index[rex_in_this_ashi]) - self.redn > 0):
@@ -141,6 +133,8 @@ class Index(object):
         candle_axs[ashi].scatter(idxs[ashi][0:rex_in_this_ashi-lex_in_this_ashi], nowdf.MA_short, s = 1)
         candle_axs[ashi].scatter(idxs[ashi][0:rex_in_this_ashi-lex_in_this_ashi], nowdf.MA_long, s = 1)
         yhani = dfs[ashi].closePrice[lex_in_this_ashi:rex_in_this_ashi]
+
+        buff = 5.0e-04*dfs[ashi].closePrice[0]
         candle_axs[ashi].set_ylim(min(yhani)-buff,max(yhani)+buff)
         candle_axs[ashi].grid(True,linestyle='dotted')
         candle_axs[ashi].set_xlim(0,rex_in_this_ashi-lex_in_this_ashi)
@@ -169,15 +163,21 @@ class Index(object):
             txt.set_visible(False)
         candle_axs[ashi].text(0.05,0.85,pricetext,transform=candle_axs[ashi].transAxes)
 
-        plt.show()
-    
+
+
 
 
 
     def get_func_of_switch_ashi(self, ashi):
         def switch(event):
             dp.writelog("switch_ashi "+ashi)
-            self.uooooo(ashi)
+            fig.delaxes(mac_axs[self.watching_ashi])
+            fig.delaxes(candle_axs[self.watching_ashi])
+            self.watching_ashi = ashi
+            fig.add_axes(mac_axs[ashi])
+            fig.add_axes(candle_axs[ashi])
+            self.create_bax(ashi)
+            plt.show()
         return switch
 
 
@@ -302,6 +302,20 @@ class Index(object):
 
 
 callback = Index()
+
+
+ashi = "5m"
+fig.add_axes(mac_axs[ashi])
+fig.add_axes(candle_axs[ashi])
+callback.create_aax(ashi)
+
+ashi = "60m"
+fig.add_axes(mac_axs[ashi])
+fig.add_axes(candle_axs[ashi])
+callback.create_bax(ashi)
+
+
+
 
 
 
