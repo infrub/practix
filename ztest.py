@@ -29,7 +29,7 @@ dfs = {}
 idxs = {}
 for ashi in ashis:
     dfs[ashi] = pd.read_csv("raw_histories/" + pair + '/' + str(year) + '_' + str(month).zfill(2) + '/market_'+ashi+'.csv', index_col=0, parse_dates=True)
-    idxs[ashi] = [x for x in range(len(dfs[ashi].index))]
+    idxs[ashi] = np.arange(len(dfs[ashi].index))
 
 axs = {ashi:[None,None] for ashi in ashis} # [メイングラフ,サブグラフ]
 
@@ -69,7 +69,7 @@ axs[ashi][0].scatter(idxs[ashi], MAmid, s=1)
 axs[ashi][0].scatter(idxs[ashi], MAshort, s=1)
 axs[ashi][0].scatter(idxs[ashi], MAlong, s=1)
 
-axs[ashi][0].set_xlim(idxs[ashi][0],idxs[ashi][flamesize])
+axs[ashi][0].set_xlim(0,flamesize)
 axs[ashi][0].set_xticks(idxs[ashi][0:flamesize:trip])
 axs[ashi][0].set_xticklabels(dfs[ashi].index[0:flamesize:trip].strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
 
@@ -112,7 +112,7 @@ class Index(object):
         yhani = dfs[ashi].closePrice[start:idx]
         axs[ashi][0].set_ylim(min(yhani)-buff,max(yhani)+buff)
         axs[ashi][0].grid(True,linestyle='dotted')
-        axs[ashi][0].set_xlim(idxs[ashi][0],idxs[ashi][idx-start])
+        axs[ashi][0].set_xlim(0,idx-start)
         axs[ashi][0].set_xticks(idxs[ashi][0:idx-start:trip])
         axs[ashi][0].set_xticklabels(dfs[ashi].index[start:idx:trip].strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
 
@@ -158,7 +158,7 @@ class Index(object):
         i = self.ind
         self.oneMind = 0
         ashi = "5m"
-        axs[ashi][0].set_xlim(idxs[ashi][i],idxs[ashi][i+flamesize])
+        axs[ashi][0].set_xlim(i,i+flamesize)
         axs[ashi][0].set_xticks(idxs[ashi][i:i+flamesize:trip])
         axs[ashi][0].set_xticklabels(dfs[ashi].index[i:i+flamesize:trip].strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
         yhani = dfs[ashi].closePrice[i:i+flamesize]
@@ -193,7 +193,7 @@ class Index(object):
         i = self.ind
         self.oneMind = 0
         ashi = "5m"
-        axs[ashi][0].set_xlim(idxs[ashi][i],idxs[ashi][i+flamesize])
+        axs[ashi][0].set_xlim(i,i+flamesize)
         axs[ashi][0].set_xticks(idxs[ashi][i:i+flamesize:trip])
         axs[ashi][0].set_xticklabels(dfs[ashi].index[i:i+flamesize:trip].strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
         yhani = dfs[ashi].closePrice[i:i+flamesize]
@@ -231,7 +231,7 @@ class Index(object):
         idx = np.abs(np.asarray(date2num(dfs[ashi].index)) - future).argmin() + 1
         i = idx - flamesize
         self.ind = i
-        axs[ashi][0].set_xlim(idxs[ashi][i],idxs[ashi][i+flamesize])
+        axs[ashi][0].set_xlim(i,i+flamesize)
         axs[ashi][0].set_xticks(idxs[ashi][i:i+flamesize:trip])
         axs[ashi][0].set_xticklabels(dfs[ashi].index[i:i+flamesize:trip].strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
         yhani = dfs[ashi].closePrice[i:i+flamesize]
