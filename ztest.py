@@ -34,14 +34,39 @@ for ashi in ashis:
 axs = {ashi:[None,None] for ashi in ashis} # [メイングラフ,サブグラフ]
 
 
+candle_axs = {ashi:None for ashi in ashis}
+mac_axs = {ashi:None for ashi in ashis}
+
+
+
+
+
+acax_position = (0.05,0.15,0.4,0.6)
+amax_position = (0.05,0.35,0.4,0.2)
+bcax_position = (0.55,0.15,0.4,0.6)
+bmax_position = (0.55,0.35,0.4,0.2)
+
+
 plt.style.use('dark_background')
 
 
-ashi = "5m"
-fig = plt.figure(ashi)
+fig = plt.figure(figsize=(12,7))
 
-axs[ashi][1] = fig.add_axes((0.05,0.15,0.9,0.2))
-axs[ashi][0] = fig.add_axes((0.05,0.35,0.9,0.6),sharex=axs[ashi][1])
+for ashi in ashis:
+    if ashi == "5m":
+        axs[ashi][1] = fig.add_axes(amax_position)
+        axs[ashi][0] = fig.add_axes(acax_position,sharex=axs[ashi][1])
+    else:
+        axs[ashi][1] = fig.add_axes(bmax_position)
+        axs[ashi][0] = fig.add_axes(bcax_position,sharex=axs[ashi][1])
+    fig.delaxes(axs[ashi][1])
+    fig.delaxes(axs[ashi][0])
+
+
+
+ashi = "5m"
+fig.add_axes(axs[ashi][1])
+fig.add_axes(axs[ashi][0])
 
 nowpricetext = str(round(dfs[ashi].closePrice[flamesize-1],5))
 entrypricetext = ''
@@ -78,6 +103,12 @@ axs[ashi][0].set_ylim(min(yhani)-buff,max(yhani)+buff)
 axs[ashi][0].grid(True,linestyle='dotted')
 
 
+
+fig.add_axes(axs["60m"][1])
+fig.add_axes(axs["60m"][0])
+
+
+
 class Index(object):
     lex_in_5m = 0 # 5mグラフにおける左端のx座標 left edge x-cood
     redn = date2num(dfs["5m"].index[0+flamesize]) # 5mグラフにおける右端のx座標が表す時間を数値化したもの right edge datetime number
@@ -88,11 +119,16 @@ class Index(object):
     oneMnow = dfs["1m"].index[0]
     entrytime = dfs["5m"].index[0]
     entrypricetext = ' '
+    watching_ashi = "60m"
+
 
     def uooooo(self, ashi):
-        fig = plt.figure(ashi)
-        axs[ashi][1] = fig.add_axes((0.05,0.15,0.9,0.2))
-        axs[ashi][0] = fig.add_axes((0.05,0.35,0.9,0.6),sharex=axs[ashi][1])
+        fig.delaxes(axs[self.watching_ashi][1])
+        fig.delaxes(axs[self.watching_ashi][0])
+        self.watching_ashi = ashi
+        fig.add_axes(axs[ashi][1])
+        fig.add_axes(axs[ashi][0])
+
         rex_in_this_ashi = np.abs(np.asarray(date2num(dfs[ashi].index)) - self.redn).argmin() + 1
 
         if (date2num(dfs[ashi].index[rex_in_this_ashi]) - self.redn > 0):
@@ -145,7 +181,6 @@ class Index(object):
         def switch(event):
             dp.writelog("switch_ashi "+ashi)
             self.uooooo(ashi)
-            plt.figure(0)
         return switch
 
 
