@@ -31,7 +31,6 @@ for ashi in ashis:
     dfs[ashi] = pd.read_csv("raw_histories/" + pair + '/' + str(year) + '_' + str(month).zfill(2) + '/market_'+ashi+'.csv', index_col=0, parse_dates=True)
     idxs[ashi] = [x for x in range(len(dfs[ashi].index))]
 
-figs = {ashi:None for ashi in ashis}
 axs = {ashi:[None,None] for ashi in ashis}
 graphs = {ashi:[None,None] for ashi in ashis}
 
@@ -40,10 +39,10 @@ plt.style.use('dark_background')
 
 
 ashi = "5m"
-figs[ashi] = plt.figure(ashi)
+fig = plt.figure(ashi)
 
-axs[ashi][1] = figs[ashi].add_axes((0.05,0.15,0.9,0.2))
-axs[ashi][0] = figs[ashi].add_axes((0.05,0.35,0.9,0.6),sharex=axs[ashi][1])
+axs[ashi][1] = fig.add_axes((0.05,0.15,0.9,0.2))
+axs[ashi][0] = fig.add_axes((0.05,0.35,0.9,0.6),sharex=axs[ashi][1])
 
 nowpricetext = str(round(dfs[ashi].closePrice[flamesize-1],5))
 entrypricetext = ''
@@ -92,9 +91,9 @@ class Index(object):
 
     def prepare_times(self, ashi, i):
         now = date2num(dfs["5m"].index[i+flamesize])
-        figs[ashi] = plt.figure(ashi)
-        axs[ashi][1] = figs[ashi].add_axes((0.05,0.15,0.9,0.2))
-        axs[ashi][0] = figs[ashi].add_axes((0.05,0.35,0.9,0.6),sharex=axs[ashi][1])
+        fig = plt.figure(ashi)
+        axs[ashi][1] = fig.add_axes((0.05,0.15,0.9,0.2))
+        axs[ashi][0] = fig.add_axes((0.05,0.35,0.9,0.6),sharex=axs[ashi][1])
         idx = np.abs(np.asarray(date2num(dfs[ashi].index)) - now).argmin() + 1
         if (date2num(dfs[ashi].index[idx]) - now > 0):
             idx = idx-1
