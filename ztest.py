@@ -93,8 +93,6 @@ class Index(object):
     def prepare_times(self, ashi, i):
         now = date2num(dfs["5m"].index[i+flamesize])
         figs[ashi] = plt.figure(ashi)
-        plt.close()
-        figs[ashi] = plt.figure(ashi)
         axs[ashi][1] = figs[ashi].add_axes((0.05,0.15,0.9,0.2))
         axs[ashi][0] = figs[ashi].add_axes((0.05,0.35,0.9,0.6),sharex=axs[ashi][1])
         idx = np.abs(np.asarray(date2num(dfs[ashi].index)) - now).argmin() + 1
@@ -330,7 +328,7 @@ class Index(object):
         logtext = 'exit at ' + str(extime)
         dp.writelog(logtext)
 
-        
+
     def oneMbuy(self, event):
 
         self.entryprice = self.oneMprice
@@ -408,8 +406,8 @@ callback = Index()
 
 btn_1m = Button(plt.axes([0.33, 0.04, 0.1, 0.035]), '1m',color = 'black')
 btn_1m.on_clicked(callback.get_func_of_switch_ashi("1m"))
-btn_5m = Button(plt.axes([0.44, 0.04, 0.1, 0.035]), '5m',color = 'black')
-btn_5m.on_clicked(callback.get_func_of_switch_ashi("5m"))
+#btn_5m = Button(plt.axes([0.44, 0.04, 0.1, 0.035]), '5m',color = 'black')
+#btn_5m.on_clicked(callback.get_func_of_switch_ashi("5m"))
 btn_15m = Button(plt.axes([0.55, 0.04, 0.1, 0.035]), '15m',color = 'black')
 btn_15m.on_clicked(callback.get_func_of_switch_ashi("15m"))
 
