@@ -31,8 +31,7 @@ for ashi in ashis:
     dfs[ashi] = pd.read_csv("raw_histories/" + pair + '/' + str(year) + '_' + str(month).zfill(2) + '/market_'+ashi+'.csv', index_col=0, parse_dates=True)
     idxs[ashi] = [x for x in range(len(dfs[ashi].index))]
 
-axs = {ashi:[None,None] for ashi in ashis}
-graphs = {ashi:[None,None] for ashi in ashis}
+axs = {ashi:[None,None] for ashi in ashis} # [メイングラフ,サブグラフ]
 
 
 plt.style.use('dark_background')
@@ -51,8 +50,8 @@ axs[ashi][0].text(0.05,0.85,pricetext,transform=axs[ashi][0].transAxes)
 
 mac_main = dfs[ashi].macd_main.shift()
 mac_signal = dfs[ashi].macd_signal.shift()
-graphs[ashi][1] = axs[ashi][1].plot(idxs[ashi], mac_main, linewidth = lw)
-graphs[ashi][1] = axs[ashi][1].plot(idxs[ashi], mac_signal, linewidth = lw)
+axs[ashi][1].plot(idxs[ashi], mac_main, linewidth = lw)
+axs[ashi][1].plot(idxs[ashi], mac_signal, linewidth = lw)
 mainhani = dfs[ashi].macd_main[0:flamesize]
 signalhani = dfs[ashi].macd_signal[0:flamesize]
 y1hani = mainhani+signalhani
@@ -62,13 +61,13 @@ axs[ashi][1].set_ylim(min(y1hani)-buff*0.01,max(y1hani)+buff*0.01)
 axs[ashi][1].grid(True,linestyle='dotted')
 axs[ashi][1].tick_params(labelbottom=False)
 
-graphs[ashi][0] = mpf.candlestick2_ohlc_indexed_by_openTime(axs[ashi][0], dfs[ashi].openPrice, dfs[ashi].highPrice, dfs[ashi].lowPrice, dfs[ashi].closePrice, width=0.8, alpha=1.0, colorup='#FF0000', colordown='g')
+mpf.candlestick2_ohlc_indexed_by_openTime(axs[ashi][0], dfs[ashi].openPrice, dfs[ashi].highPrice, dfs[ashi].lowPrice, dfs[ashi].closePrice, width=0.8, alpha=1.0, colorup='#FF0000', colordown='g')
 MAmid = dfs[ashi].MA_mid.shift()
 MAshort = dfs[ashi].MA_short.shift()
 MAlong = dfs[ashi].MA_long.shift()
-graphs[ashi][0] = axs[ashi][0].scatter(idxs[ashi], MAmid, s=1)
-graphs[ashi][0] = axs[ashi][0].scatter(idxs[ashi], MAshort, s=1)
-graphs[ashi][0] = axs[ashi][0].scatter(idxs[ashi], MAlong, s=1)
+axs[ashi][0].scatter(idxs[ashi], MAmid, s=1)
+axs[ashi][0].scatter(idxs[ashi], MAshort, s=1)
+axs[ashi][0].scatter(idxs[ashi], MAlong, s=1)
 
 axs[ashi][0].set_xlim(idxs[ashi][0],idxs[ashi][flamesize])
 axs[ashi][0].set_xticks(idxs[ashi][0:flamesize:trip])
@@ -109,10 +108,10 @@ class Index(object):
             start = 0
         nowdf = dfs[ashi][start:idx]
 
-        graphs[ashi][0] = mpf.candlestick2_ohlc_indexed_by_openTime(axs[ashi][0], nowdf.openPrice, nowdf.highPrice, nowdf.lowPrice, nowdf.closePrice, width=0.8, alpha=1.0, colorup='#FF0000', colordown='g')
-        graphs[ashi][0] = axs[ashi][0].scatter(idxs[ashi][0:idx-start], nowdf.MA_mid, s = 1)
-        graphs[ashi][0] = axs[ashi][0].scatter(idxs[ashi][0:idx-start], nowdf.MA_short, s = 1)
-        graphs[ashi][0] = axs[ashi][0].scatter(idxs[ashi][0:idx-start], nowdf.MA_long, s = 1)
+        mpf.candlestick2_ohlc_indexed_by_openTime(axs[ashi][0], nowdf.openPrice, nowdf.highPrice, nowdf.lowPrice, nowdf.closePrice, width=0.8, alpha=1.0, colorup='#FF0000', colordown='g')
+        axs[ashi][0].scatter(idxs[ashi][0:idx-start], nowdf.MA_mid, s = 1)
+        axs[ashi][0].scatter(idxs[ashi][0:idx-start], nowdf.MA_short, s = 1)
+        axs[ashi][0].scatter(idxs[ashi][0:idx-start], nowdf.MA_long, s = 1)
         yhani = dfs[ashi].closePrice[start:idx]
         axs[ashi][0].set_ylim(min(yhani)-buff,max(yhani)+buff)
         axs[ashi][0].grid(True,linestyle='dotted')
@@ -122,8 +121,8 @@ class Index(object):
 
         main = dfs[ashi].macd_main[start:idx].shift()
         signal = dfs[ashi].macd_signal[start:idx].shift()
-        graphs[ashi][1] = axs[ashi][1].plot(idxs[ashi][0:idx-start], main)
-        graphs[ashi][1] = axs[ashi][1].plot(idxs[ashi][0:idx-start], signal)
+        axs[ashi][1].plot(idxs[ashi][0:idx-start], main)
+        axs[ashi][1].plot(idxs[ashi][0:idx-start], signal)
         mainhani = dfs[ashi].macd_main[start:idx]
         signalhani = dfs[ashi].macd_signal[start:idx]
         y1hani = mainhani+signalhani
