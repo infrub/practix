@@ -322,72 +322,6 @@ class Index(object):
         logtext = 'exit at ' + str(extime)
         dp.writelog(logtext)
 
-
-    def oneMbuy(self, event):
-
-        self.entryprice = self.oneMprice
-        self.entrypricetext = str(round(self.entryprice,5))
-        nowpricetext = self.entrypricetext
-        enpricetext = self.entrypricetext
-        pricetext = 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
-        for txt in axs["5m"][0].texts:
-            txt.set_visible(False)
-        axs["5m"][0].text(0.05,0.85,pricetext,transform=axs["5m"][0].transAxes)
-        self.entrytype = 1
-        self.entrytime = self.oneMnow
-
-        logtext = 'buy at ' + str(self.oneMnow)
-        dp.writelog(logtext)
-
-    def oneMsell(self, event):
-
-        self.entryprice = self.oneMprice
-        self.entrypricetext = str(round(self.entryprice,5))
-        nowpricetext = self.entrypricetext
-        enpricetext = self.entrypricetext
-        pricetext = 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
-        for txt in axs["5m"][0].texts:
-            txt.set_visible(False)
-        axs["5m"][0].text(0.05,0.85,pricetext,transform=axs["5m"][0].transAxes)
-        self.entrytype = -1
-        self.entrytime = self.oneMnow
-
-        logtext = 'sell at ' + str(self.oneMnow)
-        dp.writelog(logtext)
-
-    def oneMexit(self, event):
-        enprice = self.entryprice
-        etype = self.entrytype
-        exprice = self.oneMprice
-        extime = self.oneMnow
-        entime = self.entrytime
-        self.entrypricetext = ''
-        nowpricetext = str(exprice)
-        enpricetext = self.entrypricetext
-        pricetext = 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
-        for txt in axs["5m"][0].texts:
-            txt.set_visible(False)
-        axs["5m"][0].text(0.05,0.85,pricetext,transform=axs["5m"][0].transAxes)
-        pips = etype*(exprice-enprice)*nomalize - spread
-        pips = round(pips, 1)
-
-        text = str(entime) + "," + str(extime) + "," + str(pips) + "," + str(etype) + "\n"
-
-        logfile_path = pair+'/'+'log_'+pair+'/'
-        filename = 'log_'+year+'_'+month+'.csv'
-
-        try:
-            oup = open(logfile_path+filename,"a")
-        except FileNotFoundError:
-            os.makedirs(logfile_path)
-            oup = open(logfile_path+filename,"a")
-        oup.write(text)
-        oup.close()
-
-        logtext = 'exit at ' + str(extime)
-        dp.writelog(logtext)
-
-
         
 
 
@@ -423,13 +357,6 @@ btn_sell = Button(plt.axes([0.11, 0.0, 0.1, 0.075]), 'Sell',color = 'black')
 btn_sell.on_clicked(callback.sell)
 btn_exit = Button(plt.axes([0.22, 0.0, 0.1, 0.075]), 'Exit',color = 'black')
 btn_exit.on_clicked(callback.exit)
-
-btn_1mbuy = Button(plt.axes([0.0, 0.11, 0.1, 0.035]), '1Buy',color = 'black')
-btn_1mbuy.on_clicked(callback.oneMbuy)
-btn_1msell = Button(plt.axes([0.11, 0.11, 0.1, 0.035]), '1Sell',color = 'black')
-btn_1msell.on_clicked(callback.oneMsell)
-btn_1mexit = Button(plt.axes([0.22, 0.11, 0.1, 0.035]), '1Exit',color = 'black')
-btn_1mexit.on_clicked(callback.oneMexit)
 
 tbx_skip = TextBox(plt.axes([0.6, 0.08, 0.4, 0.035]), '', color = 'green', initial = initial_time_text)
 tbx_skip.on_submit(callback.skip_to_time)
