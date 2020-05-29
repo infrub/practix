@@ -38,10 +38,10 @@ mac_axs = {ashi:None for ashi in ashis}
 
 
 
-acax_position = (0.05,0.15,0.4,0.6) # A面のcandle axの位置
-amax_position = (0.05,0.35,0.4,0.2)
-bcax_position = (0.55,0.15,0.4,0.6)
-bmax_position = (0.55,0.35,0.4,0.2)
+acax_position = (0.05,0.35,0.4,0.6) # A面のcandle axの位置
+amax_position = (0.05,0.15,0.4,0.2)
+bcax_position = (0.55,0.35,0.4,0.6)
+bmax_position = (0.55,0.15,0.4,0.2)
 
 
 plt.style.use('dark_background')
