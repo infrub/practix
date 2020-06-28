@@ -2,3 +2,4 @@
 __pycache__/
 /logs/
 /raw_histories/
+/configs/ytest_config.json

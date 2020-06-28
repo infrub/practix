@@ -5,7 +5,6 @@ from matplotlib.widgets import Button
 from matplotlib.widgets import TextBox
 import pandas as pd
 import my_mpl_finance as mpf
-import determin_pair as dp
 from datetime import datetime as dt
 import os
 import sys
@@ -22,9 +21,9 @@ ashis = ["m01","m05","m15","h01","h04","d01"]
 pairname = "USDGBP" if len(sys.argv)<=1 else sys.argv[1]
 weeki = 0 if len(sys.argv)<=2 else int(sys.argv[2])
 with open(f"raw_histories/{pairname}/style.json") as f:
-    jsn = json.loads(f.read())
-    ipv = jsn["ipv"] # inverse of pips value (e.g. 100 in USDJPY)
-    spread = jsn["spread"] # spread (単位はpips)
+    jsn1 = json.loads(f.read())
+    ipv = jsn1["ipv"] # inverse of pips value (e.g. 100 in USDJPY)
+    spread = jsn1["spread"] # spread (単位はpips)
 
 
 dfs = {}
@@ -235,7 +234,24 @@ btns["d01"] = Button(plt.axes([0.90, 0.03, 0.045, 0.075]), 'd01',color = 'black'
 btns["d01"].on_clicked(get_func_of_switch_ashi("d01"))
 
 
-
+try:
+    with open(f"configs/ytest_config.json") as f:
+        jsn2 = json.loads(f.read())
+        def keycon(event):
+            if event.key in jsn2["keyconfig"]["buy"]: buy(event)
+            elif event.key in jsn2["keyconfig"]["sell"]: sell(event)
+            elif event.key in jsn2["keyconfig"]["exit"]: exit(event)
+            elif event.key in jsn2["keyconfig"]["prev"]: prev_tick(event)
+            elif event.key in jsn2["keyconfig"]["next"]: next_tick(event)
+            elif event.key in jsn2["keyconfig"]["m01"]: get_func_of_switch_ashi("m01")(event)
+            elif event.key in jsn2["keyconfig"]["m15"]: get_func_of_switch_ashi("m15")(event)
+            elif event.key in jsn2["keyconfig"]["h01"]: get_func_of_switch_ashi("h01")(event)
+            elif event.key in jsn2["keyconfig"]["h04"]: get_func_of_switch_ashi("h04")(event)
+            elif event.key in jsn2["keyconfig"]["d01"]: get_func_of_switch_ashi("d01")(event)
+            else: pass
+except:
+    raise Exception("please make ytest_config.json")
+plt.connect('key_press_event',keycon)
 
 
 ashi = "m05"
@@ -251,5 +267,6 @@ for ashi in ashis:
     create_ax(ashi)
 
 
+    
 
 plt.show()
