@@ -71,11 +71,6 @@ watching_ashi = "h01"
 
 
 def create_aax(ashi):
-    #nowpricetext = str(round(dfs[ashi].closePrice[self.rex_in_m05-1],5))
-    #entrypricetext = str(self.entryprice)
-    #pricetext = 'entryprice:' + entrypricetext + "\n" +'nowprice:' + nowpricetext
-    #candle_axs[ashi].text(0.05,0.85,pricetext,transform=candle_axs[ashi].transAxes)
-
     mac_main = dfs[ashi].macd_main
     mac_signal = dfs[ashi].macd_signal
     mac_axs[ashi].plot(idxs[ashi]+1, mac_main, linewidth = lw) #close時点で値がでるのでこうして1シフトしておくのが正しい(だよね？確認してない) #TODO
@@ -87,13 +82,12 @@ def create_aax(ashi):
     candle_axs[ashi].scatter(idxs[ashi]+1, dfs[ashi].MA_mid, s=1) #close時点で値がでるのでこうして1シフトしておくのが正しい(だよね？確認してない) #TODO
     candle_axs[ashi].scatter(idxs[ashi]+1, dfs[ashi].MA_short, s=1)
     candle_axs[ashi].scatter(idxs[ashi]+1, dfs[ashi].MA_long, s=1)
+    candle_axs[ashi].set_xticks(np.arange(0,len(dfs[ashi]),trip))
+    candle_axs[ashi].set_xticklabels(dfs[ashi].openTime[0:len(dfs[ashi]):trip].dt.strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
 
     candle_axs[ashi].set_xlim(lex_in_m05,rex_in_m05)
-    candle_axs[ashi].set_xticks(idxs[ashi][lex_in_m05:rex_in_m05+1:trip])
-    candle_axs[ashi].set_xticklabels(dfs[ashi].openTime[lex_in_m05:rex_in_m05+1:trip].dt.strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
 
     yhani = dfs[ashi].closePrice[lex_in_m05:rex_in_m05]
-    #candle_axs[ashi].set_ylim(min(yhani)-buff,max(yhani)+buff)
     candle_axs[ashi].grid(True,linestyle='dotted')
 
 
@@ -105,7 +99,6 @@ def move_aax(new_rex_in_m05):
 
     ashi = "m05"
     candle_axs[ashi].set_xlim(lex_in_m05,rex_in_m05)
-    candle_axs[ashi].set_xticklabels(dfs[ashi].openTime[lex_in_m05:rex_in_m05+1:trip].dt.strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
 
 def next_aax(event):
     move_aax(rex_in_m05+1)
