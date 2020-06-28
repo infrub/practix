@@ -9,7 +9,7 @@ from datetime import datetime as dt
 import os
 import sys
 
-print(pd.__path__)
+
 
 lw = 1.0
 trip = 24
@@ -19,6 +19,7 @@ ashis = ["m01","m05","m15","h01","h04","d01"]
 
 pairname = "USDGBP" if len(sys.argv)<=1 else sys.argv[1]
 weeki = 0 if len(sys.argv)<=2 else int(sys.argv[2])
+tanni,spread = 10000.0, 1.0 #(pips)
 
 
 dfs = {}
@@ -132,17 +133,16 @@ def get_func_of_switch_ashi(ashi):
 def update_text(ashi):
     while len(candle_axs[ashi].texts) > 0:
         del candle_axs[ashi].texts[-1]
-    print(len(candle_axs[ashi].texts))
     text = ""
-    text += "nowPrice: " + str(dfs["m05"].closePrice[rexs["m05"]-1]) + "\n"
+    text += f"now: {dfs['m05'].closePrice[rexs['m05']-1]:.5f}\n"
     if entryStatus == "NOENT":
         pass
     elif entryStatus == "LONG":
-        text += "bought: " + str(entryPrice) + "\n"
+        text += f"bought: {entryPrice:.5f}\n"
     elif entryStatus == "SHORT":
-        text += "sold: " + str(entryPrice) + "\n"
+        text += f"sold: {entryPrice:.5f}\n"
     for ashi in ashis:
-        candle_axs[ashi].text(0.05,0.85,text,transform=candle_axs[ashi].transAxes)
+        candle_axs[ashi].text(0.05,0.95,text,verticalalignment='top',transform=candle_axs[ashi].transAxes)
 
 
 def buy(event):
@@ -156,6 +156,36 @@ def buy(event):
     for ashi in ashis:
         update_text(ashi)
 
+def sell(event):
+    global entryStatus, entryPrice, entryTime
+    if entryStatus != "NOENT": return
+
+    entryStatus = "SHORT"
+    entryPrice = dfs["m05"].closePrice[rexs["m05"]-1]
+    entryTime = dfs["m05"].closeTime[rexs["m05"]-1]
+
+    for ashi in ashis:
+        update_text(ashi)
+
+def exit(event):
+    global entryStatus, entryPrice, entryTime
+    if entryStatus == "NOENT":
+        return
+
+    elif entryStatus == "LONG":
+        exitPrice = dfs["m05"].closePrice[rexs["m05"]-1]
+        exitTime = dfs["m05"].closeTime[rexs["m05"]-1]
+        pips = (exitPrice-entryPrice)*tanni - spread
+
+    elif entryStatus == "SHORT":
+        exitPrice = dfs["m05"].closePrice[rexs["m05"]-1]
+        exitTime = dfs["m05"].closeTime[rexs["m05"]-1]
+        pips = (entryPrice-exitPrice)*tanni - spread
+
+    entryStatus = "NOENT"
+
+    for ashi in ashis:
+        update_text(ashi)
 
 
 
@@ -173,14 +203,17 @@ btn_h04.on_clicked(get_func_of_switch_ashi("h04"))
 btn_d01 = Button(plt.axes([0.55, 0.00, 0.1, 0.035]), 'd01',color = 'black')
 btn_d01.on_clicked(get_func_of_switch_ashi("d01"))
 
-
-
-
 btn_prev = Button(plt.axes([0.7, 0.0, 0.1, 0.075]), 'Prev',color = 'black')
 btn_prev.on_clicked(prev_tick)
 btn_next = Button(plt.axes([0.81, 0.0, 0.1, 0.075]), 'Next',color = 'black')
 btn_next.on_clicked(next_tick)
 
+btn_buy = Button(plt.axes([0.0, 0.0, 0.1, 0.075]), 'Buy',color = 'black')
+btn_buy.on_clicked(buy)
+btn_sell = Button(plt.axes([0.11, 0.0, 0.1, 0.075]), 'Sell',color = 'black')
+btn_sell.on_clicked(sell)
+btn_exit = Button(plt.axes([0.22, 0.0, 0.1, 0.075]), 'Exit',color = 'black')
+btn_exit.on_clicked(exit)
 
 
 
