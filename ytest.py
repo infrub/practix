@@ -26,6 +26,15 @@ with open(f"raw_histories/{pairname}/style.json") as f:
     spread = jsn1["spread"] # spread (単位はpips)
 
 
+logfname = f"logs/{pairname}/week_{str(weeki).zfill(3)}.csv"
+with open(logfname,"a") as f:
+    f.write("entryX,exitX,entryTime,exitTime,entryStatus,entryPrice,exitPrice,profitPips\n")
+def wrlog(entryX,exitX,entryTime,exitTime,entryStatus,entryPrice,exitPrice,profitPips):
+    with open(logfname,"a") as f:
+        f.write(f"{entryX},{exitX},{entryTime},{exitTime},{entryStatus},{entryPrice},{exitPrice},{profitPips}\n")
+
+
+
 dfs = {}
 idxs = {}
 for ashi in ashis:
@@ -79,7 +88,8 @@ for ashi in ashis:
     lexs[ashi] = max(0,rex-flamesize)
 
 watching_ashi = "h01"
-entryStatus = "NOENT"
+LONG,NOENT,SHORT = 1,0,-1
+entryStatus = NOENT
 entryTime = None
 entryPrice = None
 entryX = None
@@ -123,7 +133,7 @@ def next_tick(event):
 def prev_tick(event):
     move_tick_with_new_rex_in_m05(rexs["m05"]-1)
 
-def get_func_of_switch_ashi(ashi):
+def get_func_of_switch_ashi(ashi): #キーボードでいじったときだけなぜか色がすぐには変わらない(カーソル当てると変わる)
     global watching_ashi
     def switch(event):
         global watching_ashi
@@ -149,12 +159,12 @@ def update_text():
 
     ctext = f"now: {nowPrice:.5f}"
     ttext = f"sum: {sumProfit:.1f} pips "
-    if entryStatus == "NOENT":
+    if entryStatus == NOENT:
         ttext += f"    last: {sumProfit:.1f} pips"
-    elif entryStatus == "LONG":
+    elif entryStatus == LONG:
         ctext += f"\nbought: {entryPrice:.5f}"
         ttext += f"    latent: {(nowPrice-entryPrice)*ipv - spread :.1f} pips"
-    elif entryStatus == "SHORT":
+    elif entryStatus == SHORT:
         ctext += f"\nsold: {entryPrice:.5f}"
         ttext += f"    latent: {(entryPrice-nowPrice)*ipv - spread :.1f} pips"
 
@@ -165,48 +175,51 @@ def update_text():
 
 
 def buy(event):
-    global entryStatus, entryPrice, entryTime
-    if entryStatus != "NOENT": return
+    global entryStatus, entryX, entryPrice, entryTime
+    if entryStatus != NOENT: return
 
-    entryStatus = "LONG"
-    entryPrice = dfs["m05"].closePrice[rexs["m05"]-1]
-    entryTime = dfs["m05"].closeTime[rexs["m05"]-1]
+    entryStatus = LONG
+    entryX = rexs["m05"]
+    entryPrice = dfs["m05"].closePrice[entryX-1]
+    entryTime = dfs["m05"].closeTime[entryX-1]
 
     update_text()
+    plt.draw()
 
 def sell(event):
-    global entryStatus, entryPrice, entryTime
-    if entryStatus != "NOENT": return
+    global entryStatus, entryX, entryPrice, entryTime
+    if entryStatus != NOENT: return
 
-    entryStatus = "SHORT"
-    entryPrice = dfs["m05"].closePrice[rexs["m05"]-1]
-    entryTime = dfs["m05"].closeTime[rexs["m05"]-1]
+    entryStatus = SHORT
+    entryX = rexs["m05"]
+    entryPrice = dfs["m05"].closePrice[entryX-1]
+    entryTime = dfs["m05"].closeTime[entryX-1]
 
     update_text()
+    plt.draw()
 
 def exit(event):
-    global entryStatus, entryPrice, entryTime, lastProfit, sumProfit
-    if entryStatus == "NOENT":
+    global entryStatus, entryX, entryPrice, entryTime, lastProfit, sumProfit
+    if entryStatus == NOENT:
         return
+    else:
+        exitX = rexs["m05"]
+        exitPrice = dfs["m05"].closePrice[exitX-1]
+        exitTime = dfs["m05"].closeTime[exitX-1]
+        lastProfit = entryStatus*(exitPrice-entryPrice)*ipv - spread
 
-    elif entryStatus == "LONG":
-        exitPrice = dfs["m05"].closePrice[rexs["m05"]-1]
-        exitTime = dfs["m05"].closeTime[rexs["m05"]-1]
-        lastProfit = (exitPrice-entryPrice)*ipv - spread
-
-    elif entryStatus == "SHORT":
-        exitPrice = dfs["m05"].closePrice[rexs["m05"]-1]
-        exitTime = dfs["m05"].closeTime[rexs["m05"]-1]
-        lastProfit = (entryPrice-exitPrice)*ipv - spread
+    wrlog(entryX,exitX,entryTime,exitTime,entryStatus,entryPrice,exitPrice,lastProfit)
 
     entryStatus = "NOENT"
     sumProfit += lastProfit
 
     update_text()
+    plt.draw()
 
 
 
 
+# ボタンを設置。冗長だがボタンを入れた変数の束縛がなくなるとボタンが働かなくなるので仕方ない
 btn_buy = Button(plt.axes([0.05, 0.03, 0.1, 0.075]), 'Buy',color = 'black')
 btn_buy.on_clicked(buy)
 btn_sell = Button(plt.axes([0.16, 0.03, 0.1, 0.075]), 'Sell',color = 'black')
@@ -270,3 +283,13 @@ for ashi in ashis:
     
 
 plt.show()
+
+
+#閉じたら日記に書き込む
+blogfname = f"logs/{pairname}/blog.txt"
+with open(blogfname,"a") as f:
+    today = dt.now().strftime("%Y/%m/%d %H:%M:%S")
+    f.write(f"\n\n\n{today} 完了")
+    f.write(f"\n{pairname} week_{str(weeki).zfill(3)}")
+    f.write(f"\nsumProfit: {sumProfit:.1f}")
+
