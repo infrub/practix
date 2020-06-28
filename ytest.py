@@ -8,6 +8,7 @@ import determin_pair as dp
 from datetime import datetime as dt
 import os
 import sys
+import json
 
 
 
@@ -19,7 +20,10 @@ ashis = ["m01","m05","m15","h01","h04","d01"]
 
 pairname = "USDGBP" if len(sys.argv)<=1 else sys.argv[1]
 weeki = 0 if len(sys.argv)<=2 else int(sys.argv[2])
-tanni,spread = 10000.0, 1.0 #(pips)
+with open(f"raw_histories/{pairname}/style.json") as f:
+    jsn = json.loads(f.read())
+    ipv = jsn["ipv"] # inverse of pips value (e.g. 100 in USDJPY)
+    spread = jsn["spread"] # spread (単位はpips)
 
 
 dfs = {}
@@ -175,12 +179,12 @@ def exit(event):
     elif entryStatus == "LONG":
         exitPrice = dfs["m05"].closePrice[rexs["m05"]-1]
         exitTime = dfs["m05"].closeTime[rexs["m05"]-1]
-        pips = (exitPrice-entryPrice)*tanni - spread
+        pips = (exitPrice-entryPrice)*ipv - spread
 
     elif entryStatus == "SHORT":
         exitPrice = dfs["m05"].closePrice[rexs["m05"]-1]
         exitTime = dfs["m05"].closeTime[rexs["m05"]-1]
-        pips = (entryPrice-exitPrice)*tanni - spread
+        pips = (entryPrice-exitPrice)*ipv - spread
 
     entryStatus = "NOENT"
 
