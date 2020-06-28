@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib import colors as mcolors
 from matplotlib.widgets import Button
 from matplotlib.widgets import TextBox
 import pandas as pd
@@ -36,15 +37,6 @@ for ashi in ashis:
     idxs[ashi] = np.arange(len(dfs[ashi].index))
 
 
-
-candle_axs = {ashi:None for ashi in ashis}
-mac_axs = {ashi:None for ashi in ashis}
-
-
-#print(dfs)
-
-
-
 plt.style.use('dark_background')
 fig = plt.figure(figsize=(12,7))
 
@@ -52,10 +44,12 @@ fig = plt.figure(figsize=(12,7))
 candle_axs = {ashi:None for ashi in ashis}
 mac_axs = {ashi:None for ashi in ashis}
 
-acax_position = (0.05,0.35,0.4,0.6) # A面のcandle axの位置
-amax_position = (0.05,0.15,0.4,0.2)
-bcax_position = (0.55,0.35,0.4,0.6)
-bmax_position = (0.55,0.15,0.4,0.2)
+#(left,bottom,width,height)
+acax_position = (0.05,0.30,0.4,0.6) # A面のcandle axの位置
+amax_position = (0.05,0.10,0.4,0.2)
+bcax_position = (0.55,0.30,0.4,0.6)
+bmax_position = (0.55,0.10,0.4,0.2)
+tbox_position = (0.05,0.90,0.9,0.05)
 
 for ashi in ashis:
     if ashi == "m05":
@@ -66,6 +60,14 @@ for ashi in ashis:
         candle_axs[ashi] = fig.add_axes(bcax_position,sharex=mac_axs[ashi])
     fig.delaxes(mac_axs[ashi])
     fig.delaxes(candle_axs[ashi])
+    
+tbax = fig.add_axes(tbox_position)
+tbax.spines['top'].set_visible(False)
+tbax.spines['bottom'].set_visible(False)
+tbax.spines['left'].set_visible(False)
+tbax.spines['right'].set_visible(False)
+tbax.xaxis.set_visible(False)
+tbax.yaxis.set_visible(False)
 
 
 rexs = {"m05":yoyuu}
@@ -82,6 +84,8 @@ entryStatus = "NOENT"
 entryTime = None
 entryPrice = None
 entryX = None
+lastProfit = 0
+sumProfit = 0
 
 
 def create_ax(ashi):
@@ -102,7 +106,7 @@ def create_ax(ashi):
     yhani = dfs[ashi].closePrice[lexs[ashi]:rexs[ashi]]
     candle_axs[ashi].grid(True,linestyle='dotted')
 
-    update_text(ashi)
+    update_text()
 
 
 def move_tick_with_new_rex_in_m05(new_rex_in_m05):
@@ -111,7 +115,7 @@ def move_tick_with_new_rex_in_m05(new_rex_in_m05):
         rexs[ashi] = rex
         lexs[ashi] = max(0,rex-flamesize)
         candle_axs[ashi].set_xlim(lexs[ashi],rexs[ashi])
-        update_text(ashi)
+    update_text()
     plt.draw()
 
 def next_tick(event):
@@ -120,33 +124,45 @@ def next_tick(event):
 def prev_tick(event):
     move_tick_with_new_rex_in_m05(rexs["m05"]-1)
 
-
 def get_func_of_switch_ashi(ashi):
     global watching_ashi
     def switch(event):
         global watching_ashi
         fig.delaxes(mac_axs[watching_ashi])
         fig.delaxes(candle_axs[watching_ashi])
+        btns[watching_ashi].color = "black"
         watching_ashi = ashi
         fig.add_axes(mac_axs[watching_ashi])
         fig.add_axes(candle_axs[watching_ashi])
+        btns[watching_ashi].color = "lightseagreen"
         plt.draw()
     return switch
 
 
-def update_text(ashi):
-    while len(candle_axs[ashi].texts) > 0:
-        del candle_axs[ashi].texts[-1]
-    text = ""
-    text += f"now: {dfs['m05'].closePrice[rexs['m05']-1]:.5f}\n"
-    if entryStatus == "NOENT":
-        pass
-    elif entryStatus == "LONG":
-        text += f"bought: {entryPrice:.5f}\n"
-    elif entryStatus == "SHORT":
-        text += f"sold: {entryPrice:.5f}\n"
+def update_text():
     for ashi in ashis:
-        candle_axs[ashi].text(0.05,0.95,text,verticalalignment='top',transform=candle_axs[ashi].transAxes)
+        while len(candle_axs[ashi].texts) > 0:
+            del candle_axs[ashi].texts[-1]
+    while len(tbax.texts) > 0:
+        del tbax.texts[-1]
+
+    nowPrice = dfs['m05'].closePrice[rexs['m05']-1]
+
+    ctext = f"now: {nowPrice:.5f}"
+    ttext = f"sum: {sumProfit:.1f} pips "
+    if entryStatus == "NOENT":
+        ttext += f"    last: {sumProfit:.1f} pips"
+    elif entryStatus == "LONG":
+        ctext += f"\nbought: {entryPrice:.5f}"
+        ttext += f"    latent: {(nowPrice-entryPrice)*ipv - spread :.1f} pips"
+    elif entryStatus == "SHORT":
+        ctext += f"\nsold: {entryPrice:.5f}"
+        ttext += f"    latent: {(entryPrice-nowPrice)*ipv - spread :.1f} pips"
+
+    for ashi in ashis:
+        candle_axs[ashi].text(0.05,0.95,ctext,verticalalignment='top',transform=candle_axs[ashi].transAxes)
+    tbax.text(0,0.5,ttext,verticalalignment="center",horizontalalignment="left")
+
 
 
 def buy(event):
@@ -157,8 +173,7 @@ def buy(event):
     entryPrice = dfs["m05"].closePrice[rexs["m05"]-1]
     entryTime = dfs["m05"].closeTime[rexs["m05"]-1]
 
-    for ashi in ashis:
-        update_text(ashi)
+    update_text()
 
 def sell(event):
     global entryStatus, entryPrice, entryTime
@@ -168,44 +183,43 @@ def sell(event):
     entryPrice = dfs["m05"].closePrice[rexs["m05"]-1]
     entryTime = dfs["m05"].closeTime[rexs["m05"]-1]
 
-    for ashi in ashis:
-        update_text(ashi)
+    update_text()
 
 def exit(event):
-    global entryStatus, entryPrice, entryTime
+    global entryStatus, entryPrice, entryTime, lastProfit, sumProfit
     if entryStatus == "NOENT":
         return
 
     elif entryStatus == "LONG":
         exitPrice = dfs["m05"].closePrice[rexs["m05"]-1]
         exitTime = dfs["m05"].closeTime[rexs["m05"]-1]
-        pips = (exitPrice-entryPrice)*ipv - spread
+        lastProfit = (exitPrice-entryPrice)*ipv - spread
 
     elif entryStatus == "SHORT":
         exitPrice = dfs["m05"].closePrice[rexs["m05"]-1]
         exitTime = dfs["m05"].closeTime[rexs["m05"]-1]
-        pips = (entryPrice-exitPrice)*ipv - spread
+        lastProfit = (entryPrice-exitPrice)*ipv - spread
 
     entryStatus = "NOENT"
+    sumProfit += lastProfit
 
-    for ashi in ashis:
-        update_text(ashi)
+    update_text()
 
 
+btns = {}
 
-btn_m01 = Button(plt.axes([0.33, 0.04, 0.1, 0.035]), 'm01',color = 'black')
-btn_m01.on_clicked(get_func_of_switch_ashi("m01"))
+btns["m01"] = Button(plt.axes([0.33, 0.04, 0.1, 0.035]), 'm01',color = 'black')
+btns["m01"].on_clicked(get_func_of_switch_ashi("m01"))
 #btn_m05 = Button(plt.axes([0.44, 0.04, 0.1, 0.035]), 'm05',color = 'black')
 #btn_m05.on_clicked(callback.get_func_of_switch_ashi("m05"))
-btn_m15 = Button(plt.axes([0.55, 0.04, 0.1, 0.035]), 'm15',color = 'black')
-btn_m15.on_clicked(get_func_of_switch_ashi("m15"))
-
-btn_h01 = Button(plt.axes([0.33, 0.00, 0.1, 0.035]), 'h01',color = 'black')
-btn_h01.on_clicked(get_func_of_switch_ashi("h01"))
-btn_h04 = Button(plt.axes([0.44, 0.00, 0.1, 0.035]), 'h04',color = 'black')
-btn_h04.on_clicked(get_func_of_switch_ashi("h04"))
-btn_d01 = Button(plt.axes([0.55, 0.00, 0.1, 0.035]), 'd01',color = 'black')
-btn_d01.on_clicked(get_func_of_switch_ashi("d01"))
+btns["m15"] = Button(plt.axes([0.55, 0.04, 0.1, 0.035]), 'm15',color = 'black')
+btns["m15"].on_clicked(get_func_of_switch_ashi("m15"))
+btns["h01"] = Button(plt.axes([0.33, 0.00, 0.1, 0.035]), 'h01',color = 'black')
+btns["h01"].on_clicked(get_func_of_switch_ashi("h01"))
+btns["h04"] = Button(plt.axes([0.44, 0.00, 0.1, 0.035]), 'h04',color = 'black')
+btns["h04"].on_clicked(get_func_of_switch_ashi("h04"))
+btns["d01"] = Button(plt.axes([0.55, 0.00, 0.1, 0.035]), 'd01',color = 'black')
+btns["d01"].on_clicked(get_func_of_switch_ashi("d01"))
 
 btn_prev = Button(plt.axes([0.7, 0.0, 0.1, 0.075]), 'Prev',color = 'black')
 btn_prev.on_clicked(prev_tick)
@@ -228,6 +242,7 @@ fig.add_axes(candle_axs[ashi])
 ashi = watching_ashi
 fig.add_axes(mac_axs[ashi])
 fig.add_axes(candle_axs[ashi])
+btns[watching_ashi].color = "lightseagreen"
 
 for ashi in ashis:
     create_ax(ashi)
