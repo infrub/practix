@@ -3,12 +3,13 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Button
 from matplotlib.widgets import TextBox
 import pandas as pd
-from matplotlib.dates import date2num
 import my_mpl_finance as mpf
 import determin_pair as dp
 from datetime import datetime as dt
 import os
 import sys
+
+print(pd.__path__)
 
 lw = 1.0
 trip = 24
@@ -35,7 +36,7 @@ candle_axs = {ashi:None for ashi in ashis}
 mac_axs = {ashi:None for ashi in ashis}
 
 
-print(dfs)
+#print(dfs)
 
 
 
@@ -99,6 +100,7 @@ def move_aax(new_rex_in_m05):
 
     ashi = "m05"
     candle_axs[ashi].set_xlim(lex_in_m05,rex_in_m05)
+    plt.draw()
 
 def next_aax(event):
     move_aax(rex_in_m05+1)
