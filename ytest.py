@@ -111,6 +111,10 @@ def create_ax(ashi):
     candle_axs[ashi].set_xticklabels(dfs[ashi].openTime[0:len(dfs[ashi]):trip].dt.strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
 
     candle_axs[ashi].set_xlim(lexs[ashi],rexs[ashi])
+    miny = min(dfs[ashi].lowPrice[lexs[ashi]:rexs[ashi]])
+    maxy = max(dfs[ashi].highPrice[lexs[ashi]:rexs[ashi]])
+    buff = (maxy - miny)*0.05
+    candle_axs[ashi].set_ylim(miny-buff,maxy+buff)
 
     yhani = dfs[ashi].closePrice[lexs[ashi]:rexs[ashi]]
     candle_axs[ashi].grid(True,linestyle='dotted')
@@ -124,6 +128,10 @@ def move_tick_with_new_rex_in_m05(new_rex_in_m05):
         rexs[ashi] = rex
         lexs[ashi] = max(0,rex-flamesize)
         candle_axs[ashi].set_xlim(lexs[ashi],rexs[ashi])
+        miny = min(dfs[ashi].lowPrice[lexs[ashi]:rexs[ashi]])
+        maxy = max(dfs[ashi].highPrice[lexs[ashi]:rexs[ashi]])
+        buff = (maxy - miny)*0.05
+        candle_axs[ashi].set_ylim(miny-buff,maxy+buff)
     update_text()
     plt.draw()
 
