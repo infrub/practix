@@ -184,6 +184,10 @@ def buy(event):
     entryTime = dfs["m05"].closeTime[entryX-1]
 
     update_text()
+    btn_sell.color = "black"
+    btn_sell.label.set_text("")
+    btn_buy.color = "red"
+    btn_buy.label.set_text("Exit")
     plt.draw()
 
 def sell(event):
@@ -196,6 +200,10 @@ def sell(event):
     entryTime = dfs["m05"].closeTime[entryX-1]
 
     update_text()
+    btn_sell.color = "blue"
+    btn_sell.label.set_text("Exit")
+    btn_buy.color = "black"
+    btn_buy.label.set_text("")
     plt.draw()
 
 def exit(event):
@@ -210,22 +218,31 @@ def exit(event):
 
     wrlog(entryX,exitX,entryTime,exitTime,entryStatus,entryPrice,exitPrice,lastProfit)
 
-    entryStatus = "NOENT"
+    entryStatus = NOENT
     sumProfit += lastProfit
 
     update_text()
+    btn_sell.color = "skyblue"
+    btn_sell.label.set_text("Sell")
+    btn_buy.color = "pink"
+    btn_buy.label.set_text("Buy")
     plt.draw()
 
 
+def buyOrExit(event):
+    if entryStatus == NOENT: buy(event)
+    elif entryStatus == LONG: exit(event)
+
+def sellOrExit(event):
+    if entryStatus == NOENT: sell(event)
+    elif entryStatus == SHORT: exit(event)
 
 
 # ボタンを設置。冗長だがボタンを入れた変数の束縛がなくなるとボタンが働かなくなるので仕方ない
-btn_buy = Button(plt.axes([0.05, 0.03, 0.1, 0.075]), 'Buy',color = 'black')
-btn_buy.on_clicked(buy)
-btn_sell = Button(plt.axes([0.16, 0.03, 0.1, 0.075]), 'Sell',color = 'black')
-btn_sell.on_clicked(sell)
-btn_exit = Button(plt.axes([0.27, 0.03, 0.1, 0.075]), 'Exit',color = 'black')
-btn_exit.on_clicked(exit)
+btn_sell = Button(plt.axes([0.05, 0.03, 0.1, 0.075]), 'Sell',color = 'skyblue')
+btn_sell.on_clicked(sellOrExit)
+btn_buy = Button(plt.axes([0.16, 0.03, 0.1, 0.075]), 'Buy',color = 'pink')
+btn_buy.on_clicked(buyOrExit)
 
 btn_prev = Button(plt.axes([0.44, 0.03, 0.055, 0.075]), 'Prev',color = 'black')
 btn_prev.on_clicked(prev_tick)
@@ -293,3 +310,4 @@ with open(blogfname,"a") as f:
     f.write(f"\n{pairname} week_{str(weeki).zfill(3)}")
     f.write(f"\nsumProfit: {sumProfit:.1f}")
 
+print(f"sumProfit: {sumProfit:.1f}")
