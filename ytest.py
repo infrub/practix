@@ -45,11 +45,11 @@ candle_axs = {ashi:None for ashi in ashis}
 mac_axs = {ashi:None for ashi in ashis}
 
 #(left,bottom,width,height)
-acax_position = (0.05,0.30,0.4,0.6) # A面のcandle axの位置
-amax_position = (0.05,0.10,0.4,0.2)
-bcax_position = (0.55,0.30,0.4,0.6)
-bmax_position = (0.55,0.10,0.4,0.2)
-tbox_position = (0.05,0.90,0.9,0.05)
+acax_position = (0.05,0.33,0.4,0.6) # A面のcandle axの位置
+amax_position = (0.05,0.13,0.4,0.2)
+bcax_position = (0.55,0.33,0.4,0.6)
+bmax_position = (0.55,0.13,0.4,0.2)
+tbox_position = (0.05,0.93,0.9,0.05)
 
 for ashi in ashis:
     if ashi == "m05":
@@ -60,7 +60,7 @@ for ashi in ashis:
         candle_axs[ashi] = fig.add_axes(bcax_position,sharex=mac_axs[ashi])
     fig.delaxes(mac_axs[ashi])
     fig.delaxes(candle_axs[ashi])
-    
+
 tbax = fig.add_axes(tbox_position)
 tbax.spines['top'].set_visible(False)
 tbax.spines['bottom'].set_visible(False)
@@ -206,32 +206,35 @@ def exit(event):
     update_text()
 
 
-btns = {}
 
-btns["m01"] = Button(plt.axes([0.33, 0.04, 0.1, 0.035]), 'm01',color = 'black')
-btns["m01"].on_clicked(get_func_of_switch_ashi("m01"))
-#btn_m05 = Button(plt.axes([0.44, 0.04, 0.1, 0.035]), 'm05',color = 'black')
-#btn_m05.on_clicked(callback.get_func_of_switch_ashi("m05"))
-btns["m15"] = Button(plt.axes([0.55, 0.04, 0.1, 0.035]), 'm15',color = 'black')
-btns["m15"].on_clicked(get_func_of_switch_ashi("m15"))
-btns["h01"] = Button(plt.axes([0.33, 0.00, 0.1, 0.035]), 'h01',color = 'black')
-btns["h01"].on_clicked(get_func_of_switch_ashi("h01"))
-btns["h04"] = Button(plt.axes([0.44, 0.00, 0.1, 0.035]), 'h04',color = 'black')
-btns["h04"].on_clicked(get_func_of_switch_ashi("h04"))
-btns["d01"] = Button(plt.axes([0.55, 0.00, 0.1, 0.035]), 'd01',color = 'black')
-btns["d01"].on_clicked(get_func_of_switch_ashi("d01"))
 
-btn_prev = Button(plt.axes([0.7, 0.0, 0.1, 0.075]), 'Prev',color = 'black')
+btn_buy = Button(plt.axes([0.05, 0.03, 0.1, 0.075]), 'Buy',color = 'black')
+btn_buy.on_clicked(buy)
+btn_sell = Button(plt.axes([0.16, 0.03, 0.1, 0.075]), 'Sell',color = 'black')
+btn_sell.on_clicked(sell)
+btn_exit = Button(plt.axes([0.27, 0.03, 0.1, 0.075]), 'Exit',color = 'black')
+btn_exit.on_clicked(exit)
+
+btn_prev = Button(plt.axes([0.44, 0.03, 0.055, 0.075]), 'Prev',color = 'black')
 btn_prev.on_clicked(prev_tick)
-btn_next = Button(plt.axes([0.81, 0.0, 0.1, 0.075]), 'Next',color = 'black')
+btn_next = Button(plt.axes([0.505, 0.03, 0.055, 0.075]), 'Next',color = 'black')
 btn_next.on_clicked(next_tick)
 
-btn_buy = Button(plt.axes([0.0, 0.0, 0.1, 0.075]), 'Buy',color = 'black')
-btn_buy.on_clicked(buy)
-btn_sell = Button(plt.axes([0.11, 0.0, 0.1, 0.075]), 'Sell',color = 'black')
-btn_sell.on_clicked(sell)
-btn_exit = Button(plt.axes([0.22, 0.0, 0.1, 0.075]), 'Exit',color = 'black')
-btn_exit.on_clicked(exit)
+btns = {}
+btns["m01"] = Button(plt.axes([0.65, 0.03, 0.045, 0.075]), 'm01',color = 'black')
+btns["m01"].on_clicked(get_func_of_switch_ashi("m01"))
+btn_dummy1 = Button(plt.axes([0.70, 0.03, 0.045, 0.075]), '',color = 'black')
+btn_dummy1.on_clicked(lambda x: x)
+btns["m15"] = Button(plt.axes([0.75, 0.03, 0.045, 0.075]), 'm15',color = 'black')
+btns["m15"].on_clicked(get_func_of_switch_ashi("m15"))
+btns["h01"] = Button(plt.axes([0.80, 0.03, 0.045, 0.075]), 'h01',color = 'black')
+btns["h01"].on_clicked(get_func_of_switch_ashi("h01"))
+btns["h04"] = Button(plt.axes([0.85, 0.03, 0.045, 0.075]), 'h04',color = 'black')
+btns["h04"].on_clicked(get_func_of_switch_ashi("h04"))
+btns["d01"] = Button(plt.axes([0.90, 0.03, 0.045, 0.075]), 'd01',color = 'black')
+btns["d01"].on_clicked(get_func_of_switch_ashi("d01"))
+
+
 
 
 
