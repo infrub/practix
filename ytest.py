@@ -38,7 +38,7 @@ for ashi in ashis:
 
 
 plt.style.use('dark_background')
-fig = plt.figure(figsize=(12,7))
+fig = plt.figure(figsize=(12,7), num=f"{pairname} week_"+ str(weeki).zfill(3))
 
 
 candle_axs = {ashi:None for ashi in ashis}
