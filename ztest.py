@@ -31,8 +31,12 @@ writelog('\n\n' + str(dt.now()))
 dfs = {}
 idxs = {}
 for ashi in ashis:
-    dfs[ashi] = pd.read_csv("raw_histories/" + pairname + "/week_" + str(weeki).zfill(3) + "/market_"+ashi+".csv", parse_dates=True)
+    df = pd.read_csv("raw_histories/" + pairname + "/week_" + str(weeki).zfill(3) + "/market_"+ashi+".csv", parse_dates=True)
+    df["openTime"] = pd.to_datetime(df.openTime)
+    df["closeTime"] = pd.to_datetime(df.closeTime)
+    dfs[ashi] = df
     idxs[ashi] = np.arange(len(dfs[ashi].index))
+
 
 
 candle_axs = {ashi:None for ashi in ashis}
@@ -67,26 +71,21 @@ buff = 5.0e-04*dfs["m05"].closePrice[0]
 
 
 class Index(object):
-    lex_in_m05 = 0 # m05グラフにおける左端のx座標 left edge x-cood
-    redn = date2num(dfs["m05"].index[0+flamesize]) # m05グラフにおける右端のx座標が表す時間を数値化したもの right edge datetime number
+    rex_in_m05 = flamesize # m05グラフにおける右端のx座標 reft edge x
+
     entrytype = 0
-    entryprice = 0
-    entrytime = dfs["m05"].index[0]
-    entrypricetext = ' '
+    entryprice = None
+    entrytime = None
     watching_ashi = "h01"
 
-
-
-
-
     def create_aax(self, ashi):
-        nowpricetext = str(round(dfs[ashi].closePrice[flamesize-1],5))
-        entrypricetext = ''
+        nowpricetext = str(round(dfs[ashi].closePrice[self.rex_in_m05-1],5))
+        entrypricetext = str(self.entryprice)
         pricetext = 'entryprice:' + entrypricetext + "\n" +'nowprice:' + nowpricetext
         candle_axs[ashi].text(0.05,0.85,pricetext,transform=candle_axs[ashi].transAxes)
 
-        mac_main = dfs[ashi].macd_main.shift()
-        mac_signal = dfs[ashi].macd_signal.shift()
+        mac_main = dfs[ashi].macd_main
+        mac_signal = dfs[ashi].macd_signal
         mac_axs[ashi].plot(idxs[ashi], mac_main, linewidth = lw)
         mac_axs[ashi].plot(idxs[ashi], mac_signal, linewidth = lw)
         mainhani = dfs[ashi].macd_main[0:flamesize]
@@ -107,7 +106,7 @@ class Index(object):
 
         candle_axs[ashi].set_xlim(0,flamesize)
         candle_axs[ashi].set_xticks(idxs[ashi][0:flamesize:trip])
-        candle_axs[ashi].set_xticklabels(dfs[ashi].index[0:flamesize:trip].strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
+        #candle_axs[ashi].set_xticklabels(dfs[ashi].openTime[0:flamesize:trip].strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small") #TODO
 
         yhani = dfs[ashi].closePrice[0:flamesize]
         candle_axs[ashi].set_ylim(min(yhani)-buff,max(yhani)+buff)
@@ -116,13 +115,8 @@ class Index(object):
 
 
     def create_bax(self, ashi):
-        rex_in_this_ashi = np.abs(np.asarray(date2num(dfs[ashi].index)) - self.redn).argmin() + 1
-
-        if (date2num(dfs[ashi].index[rex_in_this_ashi]) - self.redn > 0):
-            rex_in_this_ashi = rex_in_this_ashi-1
-        lex_in_this_ashi = rex_in_this_ashi-flamesize
-        if(lex_in_this_ashi<0):
-            lex_in_this_ashi = 0
+        rex_in_this_ashi = dfs["m05"]["matching_closeX_in_"+ashi][self.rex_in_m05-1]
+        lex_in_this_ashi = max(0,rex_in_this_ashi-flamesize)
 
         nowdf = dfs[ashi][lex_in_this_ashi:rex_in_this_ashi]
 
@@ -134,9 +128,9 @@ class Index(object):
 
         candle_axs[ashi].set_ylim(min(yhani)-buff,max(yhani)+buff)
         candle_axs[ashi].grid(True,linestyle='dotted')
-        candle_axs[ashi].set_xlim(0,rex_in_this_ashi-lex_in_this_ashi)
-        candle_axs[ashi].set_xticks(idxs[ashi][0:rex_in_this_ashi-lex_in_this_ashi:trip])
-        candle_axs[ashi].set_xticklabels(dfs[ashi].index[lex_in_this_ashi:rex_in_this_ashi:trip].strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
+        candle_axs[ashi].set_xlim(lex_in_this_ashi,rex_in_this_ashi)
+        candle_axs[ashi].set_xticks(idxs[ashi][lex_in_this_ashi:rex_in_this_ashi:trip])
+        #candle_axs[ashi].set_xticklabels(dfs[ashi].index[lex_in_this_ashi:rex_in_this_ashi:trip].strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
 
         main = dfs[ashi].macd_main[lex_in_this_ashi:rex_in_this_ashi].shift()
         signal = dfs[ashi].macd_signal[lex_in_this_ashi:rex_in_this_ashi].shift()
@@ -148,17 +142,6 @@ class Index(object):
         mac_axs[ashi].set_ylim(min(y1hani)-buff*0.01,max(y1hani)+buff*0.01)
         mac_axs[ashi].grid(True,linestyle='dotted')
         mac_axs[ashi].tick_params(labelbottom=False)
-
-        nowpricetext = str(round(dfs[ashi].closePrice[rex_in_this_ashi-1],5))
-        if(self.entrypricetext!=''):
-            pips = self.entrytype*(round((dfs[ashi].closePrice[rex_in_this_ashi-1]-self.entryprice)*nomalize,3))-spread
-            pipstext = str(pips)
-            pricetext = 'pips:' + pipstext + "\n" + 'entryprice:' + self.entrypricetext + "\n" +'nowprice:' + nowpricetext
-        else:
-            pricetext = 'entryprice:' + self.entrypricetext + "\n" +'nowprice:' + nowpricetext
-        for txt in candle_axs[ashi].texts:
-            txt.set_visible(False)
-        candle_axs[ashi].text(0.05,0.85,pricetext,transform=candle_axs[ashi].transAxes)
 
 
 
@@ -177,20 +160,19 @@ class Index(object):
 
 
 
-    def move_lex_in_m05(self, new_lex_in_m05):
-        self.lex_in_m05 = new_lex_in_m05
-        i = self.lex_in_m05
-        self.redn = date2num(dfs["m05"].index[i+flamesize])
+    def move_rex_in_m05(self, new_rex_in_m05):
+        self.rex_in_m05 = new_rex_in_m05
+        lex_in_m05 = max(0,self.rex_in_m05-flamesize)
 
         ashi = "m05"
-        candle_axs[ashi].set_xlim(i,i+flamesize)
-        candle_axs[ashi].set_xticks(idxs[ashi][i:i+flamesize:trip])
-        candle_axs[ashi].set_xticklabels(dfs[ashi].index[i:i+flamesize:trip].strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
-        yhani = dfs[ashi].closePrice[i:i+flamesize]
+        candle_axs[ashi].set_xlim(lex_in_m05,rex_in_m05)
+        candle_axs[ashi].set_xticks(idxs[ashi][lex_in_this_ashi:rex_in_m05:trip])
+        candle_axs[ashi].set_xticklabels(dfs[ashi].index[lex_in_m05:rex_in_m05:trip].strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
+        yhani = dfs[ashi].closePrice[lex_in_m05:rex_in_m05]
         candle_axs[ashi].set_ylim(min(yhani)-buff,max(yhani)+buff)
         #candle_axs[ashi].grid(True,linestyle='dotted')
-        mainhani = dfs[ashi].macd_main[i:i+flamesize]
-        signalhani = dfs[ashi].macd_signal[i:i+flamesize]
+        mainhani = dfs[ashi].macd_main[lex_in_m05:rex_in_m05]
+        signalhani = dfs[ashi].macd_signal[lex_in_m05:rex_in_m05]
         y1hani = mainhani+signalhani
 
         mac_axs[ashi].set_ylim(min(y1hani)-buff*0.01,max(y1hani)+buff*0.01)

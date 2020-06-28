@@ -11,7 +11,7 @@ from tqdm import trange
 pairname = "USDGBP" if len(sys.argv)==1 else sys.argv[1]
 rh_root = "raw_histories/" + pairname
 
-flamesize = 144
+yoyuu = 144
 ashis = ["m01","m05","m15","h01","h04","d01"]
 tmds = [datetime.timedelta(minutes=1), datetime.timedelta(minutes=5), datetime.timedelta(minutes=15), datetime.timedelta(hours=1), datetime.timedelta(hours=4), datetime.timedelta(days=1)]
 
@@ -40,7 +40,7 @@ for weeki in trange(150):
         df = alltime_dfs[ashi]
         kireme_x = len(df[df.openTime <= kireme_d])
         owbf_x = len(df[df.openTime <= owbf_d])
-        df = df[max(owbf_x-flamesize,0):kireme_x]
+        df = df[max(owbf_x-yoyuu,0):kireme_x]
         df = df.reset_index(drop=True)
 
         df["openX"] = df.index
