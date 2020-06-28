@@ -90,11 +90,35 @@ def create_aax(ashi):
 
     candle_axs[ashi].set_xlim(lex_in_m05,rex_in_m05)
     candle_axs[ashi].set_xticks(idxs[ashi][lex_in_m05:rex_in_m05+1:trip])
-    candle_axs[ashi].set_xticklabels(dfs[ashi].openTime[lex_in_m05:rex_in_m05+1:trip].dt.strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small") #TODO
+    candle_axs[ashi].set_xticklabels(dfs[ashi].openTime[lex_in_m05:rex_in_m05+1:trip].dt.strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
 
     yhani = dfs[ashi].closePrice[lex_in_m05:rex_in_m05]
     #candle_axs[ashi].set_ylim(min(yhani)-buff,max(yhani)+buff)
     candle_axs[ashi].grid(True,linestyle='dotted')
+
+
+
+def move_aax(new_rex_in_m05):
+    global rex_in_m05, lex_in_m05
+    rex_in_m05 = new_rex_in_m05
+    lex_in_m05 = max(0,rex_in_m05-flamesize)
+
+    ashi = "m05"
+    candle_axs[ashi].set_xlim(lex_in_m05,rex_in_m05)
+    candle_axs[ashi].set_xticklabels(dfs[ashi].openTime[lex_in_m05:rex_in_m05+1:trip].dt.strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
+
+def next_aax(event):
+    move_aax(rex_in_m05+1)
+
+def prev_aax(event):
+    move_aax(rex_in_m05-1)
+
+
+
+btn_prev = Button(plt.axes([0.7, 0.0, 0.1, 0.075]), 'Prev',color = 'black')
+btn_prev.on_clicked(prev_aax)
+btn_next = Button(plt.axes([0.81, 0.0, 0.1, 0.075]), 'Next',color = 'black')
+btn_next.on_clicked(next_aax)
 
 
 
