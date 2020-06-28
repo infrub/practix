@@ -222,9 +222,9 @@ def exit(event):
     sumProfit += lastProfit
 
     update_text()
-    btn_sell.color = "skyblue"
+    btn_sell.color = "cornflowerblue"
     btn_sell.label.set_text("Sell")
-    btn_buy.color = "pink"
+    btn_buy.color = "coral"
     btn_buy.label.set_text("Buy")
     plt.draw()
 
@@ -239,9 +239,9 @@ def sellOrExit(event):
 
 
 # ボタンを設置。冗長だがボタンを入れた変数の束縛がなくなるとボタンが働かなくなるので仕方ない
-btn_sell = Button(plt.axes([0.05, 0.03, 0.1, 0.075]), 'Sell',color = 'skyblue')
+btn_sell = Button(plt.axes([0.05, 0.03, 0.1, 0.075]), 'Sell',color = 'cornflowerblue')
 btn_sell.on_clicked(sellOrExit)
-btn_buy = Button(plt.axes([0.16, 0.03, 0.1, 0.075]), 'Buy',color = 'pink')
+btn_buy = Button(plt.axes([0.16, 0.03, 0.1, 0.075]), 'Buy',color = 'coral')
 btn_buy.on_clicked(buyOrExit)
 
 btn_prev = Button(plt.axes([0.44, 0.03, 0.055, 0.075]), 'Prev',color = 'black')
