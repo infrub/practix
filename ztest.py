@@ -5,38 +5,38 @@ from matplotlib.widgets import TextBox
 import pandas as pd
 from matplotlib.dates import date2num
 import my_mpl_finance as mpf
-import determin_pair as dp
 from datetime import datetime as dt
 import os
+import sys
 
 lw = 1.0
 trip = 20
-ashis = ["5m","15m","60m","4h","1d","1m"]
-times = 6
 
-dt_now = '\n\n' + str(dt.now())
-dp.writelog(dt_now)
+flamesize = 144
+ashis = ["m01","m05","m15","h01","h04","d01"]
 
-pair = dp.pair()
-nomalize,spread = dp.spnm(pair)
-year = 2018
-month = 9
+pairname = "USDGBP" if len(sys.argv)<=1 else sys.argv[1]
+weeki = 0 if len(sys.argv)<=2 else int(sys.argv[2])
+nomalize,spread = 10000.0, 1.0
 
 initial_time_text = open("logs/nikki.txt").readlines()[-1]
-flamesize = 144
+def writelog(text):
+    oup = open("logs/loglog.dat","a")
+    logtext = text + '\n'
+    oup.write(logtext)
+    oup.close()
+writelog('\n\n' + str(dt.now()))
+
 
 dfs = {}
 idxs = {}
 for ashi in ashis:
-    dfs[ashi] = pd.read_csv("raw_histories/" + pair + '/' + str(year) + '_' + str(month).zfill(2) + '/market_'+ashi+'.csv', index_col=0, parse_dates=True)
+    dfs[ashi] = pd.read_csv("raw_histories/" + pairname + "/week_" + str(weeki).zfill(3) + "/market_"+ashi+".csv", parse_dates=True)
     idxs[ashi] = np.arange(len(dfs[ashi].index))
+
 
 candle_axs = {ashi:None for ashi in ashis}
 mac_axs = {ashi:None for ashi in ashis}
-
-
-
-
 
 acax_position = (0.05,0.35,0.4,0.6) # A面のcandle axの位置
 amax_position = (0.05,0.15,0.4,0.2)
@@ -50,7 +50,7 @@ plt.style.use('dark_background')
 fig = plt.figure(figsize=(12,7))
 
 for ashi in ashis:
-    if ashi == "5m":
+    if ashi == "m05":
         mac_axs[ashi] = fig.add_axes(amax_position)
         candle_axs[ashi] = fig.add_axes(acax_position,sharex=mac_axs[ashi])
     else:
@@ -62,18 +62,18 @@ for ashi in ashis:
 
 
 
-buff = 5.0e-04*dfs["5m"].closePrice[0]
+buff = 5.0e-04*dfs["m05"].closePrice[0]
 
 
 
 class Index(object):
-    lex_in_5m = 0 # 5mグラフにおける左端のx座標 left edge x-cood
-    redn = date2num(dfs["5m"].index[0+flamesize]) # 5mグラフにおける右端のx座標が表す時間を数値化したもの right edge datetime number
+    lex_in_m05 = 0 # m05グラフにおける左端のx座標 left edge x-cood
+    redn = date2num(dfs["m05"].index[0+flamesize]) # m05グラフにおける右端のx座標が表す時間を数値化したもの right edge datetime number
     entrytype = 0
     entryprice = 0
-    entrytime = dfs["5m"].index[0]
+    entrytime = dfs["m05"].index[0]
     entrypricetext = ' '
-    watching_ashi = "60m"
+    watching_ashi = "h01"
 
 
 
@@ -165,7 +165,7 @@ class Index(object):
 
     def get_func_of_switch_ashi(self, ashi):
         def switch(event):
-            dp.writelog("switch_ashi "+ashi)
+            writelog("switch_ashi "+ashi)
             fig.delaxes(mac_axs[self.watching_ashi])
             fig.delaxes(candle_axs[self.watching_ashi])
             self.watching_ashi = ashi
@@ -177,12 +177,12 @@ class Index(object):
 
 
 
-    def move_lex_in_5m(self, new_lex_in_5m):
-        self.lex_in_5m = new_lex_in_5m
-        i = self.lex_in_5m
-        self.redn = date2num(dfs["5m"].index[i+flamesize])
+    def move_lex_in_m05(self, new_lex_in_m05):
+        self.lex_in_m05 = new_lex_in_m05
+        i = self.lex_in_m05
+        self.redn = date2num(dfs["m05"].index[i+flamesize])
 
-        ashi = "5m"
+        ashi = "m05"
         candle_axs[ashi].set_xlim(i,i+flamesize)
         candle_axs[ashi].set_xticks(idxs[ashi][i:i+flamesize:trip])
         candle_axs[ashi].set_xticklabels(dfs[ashi].index[i:i+flamesize:trip].strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
@@ -207,72 +207,72 @@ class Index(object):
             pricetext = 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
         for txt in candle_axs[ashi].texts:
             txt.set_visible(False)
-        candle_axs[ashi].text(0.05,0.85,pricetext,transform=candle_axs["5m"].transAxes)
+        candle_axs[ashi].text(0.05,0.85,pricetext,transform=candle_axs["m05"].transAxes)
         plt.draw()
 
     def next(self, event):
-        self.move_lex_in_5m(self.lex_in_5m+1)
-        dp.writelog("next")
+        self.move_lex_in_m05(self.lex_in_m05+1)
+        writelog("next")
 
     def prev(self, event):
-        self.move_lex_in_5m(self.lex_in_5m-1)
-        dp.writelog("prev")
+        self.move_lex_in_m05(self.lex_in_m05-1)
+        writelog("prev")
 
     def skip_to_time(self, date_text): 
         dn = date2num(dt.strptime(date_text, '%Y-%m-%d %H:%M'))
-        new_rex_in_5m = np.abs(np.asarray(date2num(dfs[ashi].index)) - dn).argmin() + 1
-        new_lex_in_5m = new_rex_in_5m - flamesize
-        self.move_lex_in_5m(new_lex_in_5m)
-        dp.writelog('skip_to_time ' + date_text)
+        new_rex_in_m05 = np.abs(np.asarray(date2num(dfs[ashi].index)) - dn).argmin() + 1
+        new_lex_in_m05 = new_rex_in_m05 - flamesize
+        self.move_lex_in_m05(new_lex_in_m05)
+        writelog('skip_to_time ' + date_text)
 
 
 
     def buy(self, event):
-        i = self.lex_in_5m
-        self.entryprice = dfs["5m"].closePrice[i+flamesize-1]
+        i = self.lex_in_m05
+        self.entryprice = dfs["m05"].closePrice[i+flamesize-1]
         self.entrypricetext = str(round(self.entryprice,5))
-        nowpricetext = str(round(dfs["5m"].closePrice[i+flamesize-1],5))
+        nowpricetext = str(round(dfs["m05"].closePrice[i+flamesize-1],5))
         enpricetext = self.entrypricetext
         pricetext = 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
-        for txt in candle_axs["5m"].texts:
+        for txt in candle_axs["m05"].texts:
             txt.set_visible(False)
-        candle_axs["5m"].text(0.05,0.85,pricetext,transform=candle_axs["5m"].transAxes)
+        candle_axs["m05"].text(0.05,0.85,pricetext,transform=candle_axs["m05"].transAxes)
         self.entrytype = 1
-        self.entrytime = dfs["5m"].index[i+flamesize-1]
+        self.entrytime = dfs["m05"].index[i+flamesize-1]
 
-        logtext = 'buy at ' + str(dfs["5m"].index[i+flamesize-1])
-        dp.writelog(logtext)
+        logtext = 'buy at ' + str(dfs["m05"].index[i+flamesize-1])
+        writelog(logtext)
 
     def sell(self, event):
-        i = self.lex_in_5m
-        self.entryprice = dfs["5m"].closePrice[i+flamesize-1]
+        i = self.lex_in_m05
+        self.entryprice = dfs["m05"].closePrice[i+flamesize-1]
         self.entrypricetext = str(round(self.entryprice,5))
-        nowpricetext = str(round(dfs["5m"].closePrice[i+flamesize-1],5))
+        nowpricetext = str(round(dfs["m05"].closePrice[i+flamesize-1],5))
         enpricetext = self.entrypricetext
         pricetext = 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
-        for txt in candle_axs["5m"].texts:
+        for txt in candle_axs["m05"].texts:
             txt.set_visible(False)
-        candle_axs["5m"].text(0.05,0.85,pricetext,transform=candle_axs["5m"].transAxes)
+        candle_axs["m05"].text(0.05,0.85,pricetext,transform=candle_axs["m05"].transAxes)
         self.entrytype = -1
-        self.entrytime = dfs["5m"].index[i+flamesize-1]
+        self.entrytime = dfs["m05"].index[i+flamesize-1]
 
-        logtext = 'sell at ' + str(dfs["5m"].index[i+flamesize-1])
-        dp.writelog(logtext)
+        logtext = 'sell at ' + str(dfs["m05"].index[i+flamesize-1])
+        writelog(logtext)
 
     def exit(self, event):
-        i = self.lex_in_5m
+        i = self.lex_in_m05
         enprice = self.entryprice
         etype = self.entrytype
-        exprice = dfs["5m"].closePrice[i+flamesize-1]
-        extime = dfs["5m"].index[i+flamesize-1]
+        exprice = dfs["m05"].closePrice[i+flamesize-1]
+        extime = dfs["m05"].index[i+flamesize-1]
         entime = self.entrytime
         self.entrypricetext = ''
-        nowpricetext = str(round(dfs["5m"].closePrice[i+flamesize-1],5))
+        nowpricetext = str(round(dfs["m05"].closePrice[i+flamesize-1],5))
         enpricetext = self.entrypricetext
         pricetext = 'entryprice:' + enpricetext + "\n" +'nowprice:' + nowpricetext
-        for txt in candle_axs["5m"].texts:
+        for txt in candle_axs["m05"].texts:
             txt.set_visible(False)
-        candle_axs["5m"].text(0.05,0.85,pricetext,transform=candle_axs["5m"].transAxes)
+        candle_axs["m05"].text(0.05,0.85,pricetext,transform=candle_axs["m05"].transAxes)
         pips = etype*(exprice-enprice)*nomalize - spread
         pips = round(pips, 1)
 
@@ -290,7 +290,7 @@ class Index(object):
         oup.close()
 
         logtext = 'exit at ' + str(extime)
-        dp.writelog(logtext)
+        writelog(logtext)
 
         
 
@@ -298,12 +298,12 @@ class Index(object):
 callback = Index()
 
 
-ashi = "5m"
+ashi = "m05"
 fig.add_axes(mac_axs[ashi])
 fig.add_axes(candle_axs[ashi])
 callback.create_aax(ashi)
 
-ashi = "60m"
+ashi = "h01"
 fig.add_axes(mac_axs[ashi])
 fig.add_axes(candle_axs[ashi])
 callback.create_bax(ashi)
@@ -316,19 +316,19 @@ callback.create_bax(ashi)
 # ボタンを設置。冗長だがボタンを入れた変数の束縛がなくなるとボタンが働かなくなるので仕方ない
 
 
-btn_1m = Button(plt.axes([0.33, 0.04, 0.1, 0.035]), '1m',color = 'black')
-btn_1m.on_clicked(callback.get_func_of_switch_ashi("1m"))
-#btn_5m = Button(plt.axes([0.44, 0.04, 0.1, 0.035]), '5m',color = 'black')
-#btn_5m.on_clicked(callback.get_func_of_switch_ashi("5m"))
-btn_15m = Button(plt.axes([0.55, 0.04, 0.1, 0.035]), '15m',color = 'black')
-btn_15m.on_clicked(callback.get_func_of_switch_ashi("15m"))
+btn_m01 = Button(plt.axes([0.33, 0.04, 0.1, 0.035]), 'm01',color = 'black')
+btn_m01.on_clicked(callback.get_func_of_switch_ashi("m01"))
+#btn_m05 = Button(plt.axes([0.44, 0.04, 0.1, 0.035]), 'm05',color = 'black')
+#btn_m05.on_clicked(callback.get_func_of_switch_ashi("m05"))
+btn_m15 = Button(plt.axes([0.55, 0.04, 0.1, 0.035]), 'm15',color = 'black')
+btn_m15.on_clicked(callback.get_func_of_switch_ashi("m15"))
 
-btn_60m = Button(plt.axes([0.33, 0.00, 0.1, 0.035]), '60m',color = 'black')
-btn_60m.on_clicked(callback.get_func_of_switch_ashi("60m"))
-btn_4h = Button(plt.axes([0.44, 0.00, 0.1, 0.035]), '4h',color = 'black')
-btn_4h.on_clicked(callback.get_func_of_switch_ashi("4h"))
-btn_1d = Button(plt.axes([0.55, 0.00, 0.1, 0.035]), '1d',color = 'black')
-btn_1d.on_clicked(callback.get_func_of_switch_ashi("1d"))
+btn_h01 = Button(plt.axes([0.33, 0.00, 0.1, 0.035]), 'h01',color = 'black')
+btn_h01.on_clicked(callback.get_func_of_switch_ashi("h01"))
+btn_h04 = Button(plt.axes([0.44, 0.00, 0.1, 0.035]), 'h04',color = 'black')
+btn_h04.on_clicked(callback.get_func_of_switch_ashi("h04"))
+btn_d01 = Button(plt.axes([0.55, 0.00, 0.1, 0.035]), 'd01',color = 'black')
+btn_d01.on_clicked(callback.get_func_of_switch_ashi("d01"))
 
 btn_prev = Button(plt.axes([0.7, 0.0, 0.1, 0.075]), 'Previous',color = 'black')
 btn_prev.on_clicked(callback.prev)
