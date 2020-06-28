@@ -73,6 +73,10 @@ for ashi in ashis:
     lexs[ashi] = max(0,rex-flamesize)
 
 watching_ashi = "h01"
+entryStatus = "NOENT"
+entryTime = None
+entryPrice = None
+entryX = None
 
 
 def create_ax(ashi):
@@ -93,12 +97,16 @@ def create_ax(ashi):
     yhani = dfs[ashi].closePrice[lexs[ashi]:rexs[ashi]]
     candle_axs[ashi].grid(True,linestyle='dotted')
 
+    update_text(ashi)
+
+
 def move_tick_with_new_rex_in_m05(new_rex_in_m05):
     for ashi in ashis:
         rex = dfs["m05"]["matching_closeX_in_"+ashi][new_rex_in_m05-1]
         rexs[ashi] = rex
         lexs[ashi] = max(0,rex-flamesize)
         candle_axs[ashi].set_xlim(lexs[ashi],rexs[ashi])
+        update_text(ashi)
     plt.draw()
 
 def next_tick(event):
@@ -120,6 +128,33 @@ def get_func_of_switch_ashi(ashi):
         plt.draw()
     return switch
 
+
+def update_text(ashi):
+    while len(candle_axs[ashi].texts) > 0:
+        del candle_axs[ashi].texts[-1]
+    print(len(candle_axs[ashi].texts))
+    text = ""
+    text += "nowPrice: " + str(dfs["m05"].closePrice[rexs["m05"]-1]) + "\n"
+    if entryStatus == "NOENT":
+        pass
+    elif entryStatus == "LONG":
+        text += "bought: " + str(entryPrice) + "\n"
+    elif entryStatus == "SHORT":
+        text += "sold: " + str(entryPrice) + "\n"
+    for ashi in ashis:
+        candle_axs[ashi].text(0.05,0.85,text,transform=candle_axs[ashi].transAxes)
+
+
+def buy(event):
+    global entryStatus, entryPrice, entryTime
+    if entryStatus != "NOENT": return
+
+    entryStatus = "LONG"
+    entryPrice = dfs["m05"].closePrice[rexs["m05"]-1]
+    entryTime = dfs["m05"].closeTime[rexs["m05"]-1]
+
+    for ashi in ashis:
+        update_text(ashi)
 
 
 
