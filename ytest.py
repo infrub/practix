@@ -11,6 +11,8 @@ import sys
 import json
 
 
+
+
 #TODO 実際macdとかどういうパラメでやってるのか
 
 
@@ -50,15 +52,17 @@ for ashi in ashis:
     idxs[ashi] = np.arange(len(dfs[ashi].index))
 
 
+#styles
+priceLineWidth = 0.6
+bgcolor = "#131313"
 plt.style.use('dark_background')
-fig = plt.figure(figsize=(12,7), num=f"{pairname} week_"+ str(weeki).zfill(3))
+fig = plt.figure(figsize=(12,7), num=f"{pairname} week_"+ str(weeki).zfill(3), facecolor=bgcolor)
 
 
 candle_axs = {ashi:None for ashi in ashis}
 mac_axs = {ashi:None for ashi in ashis}
 nowPriceLines = {}
 entryPriceLines = {}
-priceLineWidth = 0.6
 
 #(left,bottom,width,height)
 acax_position = (0.05,0.33,0.4,0.6) # A面のcandle axの位置
@@ -69,15 +73,15 @@ tbox_position = (0.05,0.93,0.9,0.05)
 
 for ashi in ashis:
     if ashi == "m05":
-        mac_axs[ashi] = fig.add_axes(amax_position)
-        candle_axs[ashi] = fig.add_axes(acax_position,sharex=mac_axs[ashi])
+        mac_axs[ashi] = fig.add_axes(amax_position, facecolor=bgcolor)
+        candle_axs[ashi] = fig.add_axes(acax_position,sharex=mac_axs[ashi], facecolor=bgcolor)
     else:
-        mac_axs[ashi] = fig.add_axes(bmax_position)
-        candle_axs[ashi] = fig.add_axes(bcax_position,sharex=mac_axs[ashi])
+        mac_axs[ashi] = fig.add_axes(bmax_position, facecolor=bgcolor)
+        candle_axs[ashi] = fig.add_axes(bcax_position,sharex=mac_axs[ashi], facecolor=bgcolor)
     fig.delaxes(mac_axs[ashi])
     fig.delaxes(candle_axs[ashi])
 
-tbax = fig.add_axes(tbox_position)
+tbax = fig.add_axes(tbox_position, facecolor=bgcolor)
 tbax.spines['top'].set_visible(False)
 tbax.spines['bottom'].set_visible(False)
 tbax.spines['left'].set_visible(False)
@@ -111,7 +115,7 @@ def create_ax(ashi):
     mac_axs[ashi].grid(True,linestyle='dotted')
     mac_axs[ashi].tick_params(labelbottom=False)
 
-    mpf.candlestick2_ohlc_indexed_by_openTime(candle_axs[ashi], dfs[ashi].openPrice, dfs[ashi].highPrice, dfs[ashi].lowPrice, dfs[ashi].closePrice, width=0.7, alpha=1.0, colorup='#FF0000', colordown='g')
+    mpf.candlestick2_ohlc_indexed_by_openTime(candle_axs[ashi], dfs[ashi].openPrice, dfs[ashi].highPrice, dfs[ashi].lowPrice, dfs[ashi].closePrice, width=0.7, alpha=1.0, colorup="#fa2200", colordown="#0077ff")
     candle_axs[ashi].scatter(idxs[ashi]+1, dfs[ashi].MA_mid, color="#aacf52", s=1) #close時点で値がでるのでこうして1シフトしておくのが正しい(だよね？確認してない) #TODO
     candle_axs[ashi].scatter(idxs[ashi]+1, dfs[ashi].MA_short, color="#f6ad48", s=1)
     candle_axs[ashi].scatter(idxs[ashi]+1, dfs[ashi].MA_long, color="#00b1a9", s=1)
@@ -128,7 +132,7 @@ def create_ax(ashi):
     candle_axs[ashi].grid(True,linestyle='dotted')
 
     nowPriceLines[ashi] = candle_axs[ashi].hlines(dfs["m05"].closePrice[rexs["m05"]-1],0,len(dfs[ashi]), color="yellow", linewidth=priceLineWidth)
-    entryPriceLines[ashi] = candle_axs[ashi].hlines(0,0,len(dfs[ashi]), color="black", linewidth=priceLineWidth)
+    entryPriceLines[ashi] = candle_axs[ashi].hlines(0,0,len(dfs[ashi]), color=bgcolor, linewidth=priceLineWidth)
 
     update_text()
 
@@ -163,7 +167,7 @@ def get_func_of_switch_ashi(ashi): #キーボードでいじったときだけ�
         global watching_ashi
         fig.delaxes(mac_axs[watching_ashi])
         fig.delaxes(candle_axs[watching_ashi])
-        btns[watching_ashi].color = "black"
+        btns[watching_ashi].color = bgcolor
         watching_ashi = ashi
         fig.add_axes(mac_axs[watching_ashi])
         fig.add_axes(candle_axs[watching_ashi])
@@ -212,7 +216,7 @@ def buy(event):
         entryPriceLines[ashi].remove()
         entryPriceLines[ashi] = candle_axs[ashi].hlines(entryPrice,0,len(dfs[ashi]), color="coral", linewidth=priceLineWidth)
     update_text()
-    btn_sell.color = "black"
+    btn_sell.color = bgcolor
     btn_sell.label.set_text("")
     btn_buy.color = "red"
     btn_buy.label.set_text("Exit")
@@ -233,7 +237,7 @@ def sell(event):
     update_text()
     btn_sell.color = "blue"
     btn_sell.label.set_text("Exit")
-    btn_buy.color = "black"
+    btn_buy.color = bgcolor
     btn_buy.label.set_text("")
     plt.draw()
 
@@ -254,7 +258,7 @@ def exit(event):
 
     for ashi in ashis:
         entryPriceLines[ashi].remove()
-        entryPriceLines[ashi] = candle_axs[ashi].hlines(0,0,len(dfs[ashi]), color="black", linewidth=priceLineWidth)
+        entryPriceLines[ashi] = candle_axs[ashi].hlines(0,0,len(dfs[ashi]), color=bgcolor, linewidth=priceLineWidth)
     update_text()
     btn_sell.color = "cornflowerblue"
     btn_sell.label.set_text("Sell")
@@ -278,23 +282,23 @@ btn_sell.on_clicked(sellOrExit)
 btn_buy = Button(plt.axes([0.16, 0.03, 0.1, 0.075]), 'Buy',color = 'coral')
 btn_buy.on_clicked(buyOrExit)
 
-btn_prev = Button(plt.axes([0.44, 0.03, 0.055, 0.075]), 'Prev',color = 'black')
+btn_prev = Button(plt.axes([0.44, 0.03, 0.055, 0.075]), 'Prev',color = bgcolor)
 btn_prev.on_clicked(prev_tick)
-btn_next = Button(plt.axes([0.505, 0.03, 0.055, 0.075]), 'Next',color = 'black')
+btn_next = Button(plt.axes([0.505, 0.03, 0.055, 0.075]), 'Next',color = bgcolor)
 btn_next.on_clicked(next_tick)
 
 btns = {}
-btns["m01"] = Button(plt.axes([0.65, 0.03, 0.045, 0.075]), 'm01',color = 'black')
+btns["m01"] = Button(plt.axes([0.65, 0.03, 0.045, 0.075]), 'm01',color = bgcolor)
 btns["m01"].on_clicked(get_func_of_switch_ashi("m01"))
-btn_dummy1 = Button(plt.axes([0.70, 0.03, 0.045, 0.075]), '',color = 'black')
+btn_dummy1 = Button(plt.axes([0.70, 0.03, 0.045, 0.075]), '',color = bgcolor)
 btn_dummy1.on_clicked(lambda x: x)
-btns["m15"] = Button(plt.axes([0.75, 0.03, 0.045, 0.075]), 'm15',color = 'black')
+btns["m15"] = Button(plt.axes([0.75, 0.03, 0.045, 0.075]), 'm15',color = bgcolor)
 btns["m15"].on_clicked(get_func_of_switch_ashi("m15"))
-btns["h01"] = Button(plt.axes([0.80, 0.03, 0.045, 0.075]), 'h01',color = 'black')
+btns["h01"] = Button(plt.axes([0.80, 0.03, 0.045, 0.075]), 'h01',color = bgcolor)
 btns["h01"].on_clicked(get_func_of_switch_ashi("h01"))
-btns["h04"] = Button(plt.axes([0.85, 0.03, 0.045, 0.075]), 'h04',color = 'black')
+btns["h04"] = Button(plt.axes([0.85, 0.03, 0.045, 0.075]), 'h04',color = bgcolor)
 btns["h04"].on_clicked(get_func_of_switch_ashi("h04"))
-btns["d01"] = Button(plt.axes([0.90, 0.03, 0.045, 0.075]), 'd01',color = 'black')
+btns["d01"] = Button(plt.axes([0.90, 0.03, 0.045, 0.075]), 'd01',color = bgcolor)
 btns["d01"].on_clicked(get_func_of_switch_ashi("d01"))
 
 
