@@ -127,7 +127,7 @@ def create_ax(ashi):
     yhani = dfs[ashi].closePrice[lexs[ashi]:rexs[ashi]]
     candle_axs[ashi].grid(True,linestyle='dotted')
 
-    nowPriceLines[ashi] = candle_axs[ashi].hlines(dfs["m05"].closePrice[rexs["m05"]-1],0,len(dfs[ashi]), color="white", linewidth=priceLineWidth)
+    nowPriceLines[ashi] = candle_axs[ashi].hlines(dfs["m05"].closePrice[rexs["m05"]-1],0,len(dfs[ashi]), color="yellow", linewidth=priceLineWidth)
     entryPriceLines[ashi] = candle_axs[ashi].hlines(0,0,len(dfs[ashi]), color="black", linewidth=priceLineWidth)
 
     update_text()
@@ -144,7 +144,7 @@ def move_tick_with_new_rex_in_m05(new_rex_in_m05):
         buff = (maxy - miny)*0.05
         candle_axs[ashi].set_ylim(miny-buff,maxy+buff)
         nowPriceLines[ashi].remove()
-        nowPriceLines[ashi] = candle_axs[ashi].hlines(dfs["m05"].closePrice[rexs["m05"]-1],0,len(dfs[ashi]), color="white", linewidth=priceLineWidth)
+        nowPriceLines[ashi] = candle_axs[ashi].hlines(dfs["m05"].closePrice[rexs["m05"]-1],0,len(dfs[ashi]), color="yellow", linewidth=priceLineWidth)
     update_text()
     plt.draw()
 
