@@ -11,8 +11,9 @@ import sys
 import json
 
 
+#TODO 実際macdとかどういうパラメでやってるのか
 
-lw = 1.0
+
 trip = 24
 flamesize = 96
 yoyuu = 144
@@ -98,15 +99,15 @@ sumProfit = 0
 
 
 def create_ax(ashi):
-    mac_axs[ashi].plot(idxs[ashi]+1, dfs[ashi].macd_main, linewidth = lw) #close時点で値がでるのでこうして1シフトしておくのが正しい(だよね？確認してない) #TODO
-    mac_axs[ashi].plot(idxs[ashi]+1, dfs[ashi].macd_signal, linewidth = lw)
+    mac_axs[ashi].plot(idxs[ashi]+1, dfs[ashi].macd_main, color="mediumvioletred", linewidth = 1.5) #close時点で値がでるのでこうして1シフトしておくのが正しい(だよね？確認してない) #TODO
+    mac_axs[ashi].plot(idxs[ashi]+1, dfs[ashi].macd_signal, color="lightslategrey", linewidth = 1.5)
     mac_axs[ashi].grid(True,linestyle='dotted')
     mac_axs[ashi].tick_params(labelbottom=False)
 
-    mpf.candlestick2_ohlc_indexed_by_openTime(candle_axs[ashi], dfs[ashi].openPrice, dfs[ashi].highPrice, dfs[ashi].lowPrice, dfs[ashi].closePrice, width=0.8, alpha=1.0, colorup='#FF0000', colordown='g')
-    candle_axs[ashi].scatter(idxs[ashi]+1, dfs[ashi].MA_mid, s=1) #close時点で値がでるのでこうして1シフトしておくのが正しい(だよね？確認してない) #TODO
-    candle_axs[ashi].scatter(idxs[ashi]+1, dfs[ashi].MA_short, s=1)
-    candle_axs[ashi].scatter(idxs[ashi]+1, dfs[ashi].MA_long, s=1)
+    mpf.candlestick2_ohlc_indexed_by_openTime(candle_axs[ashi], dfs[ashi].openPrice, dfs[ashi].highPrice, dfs[ashi].lowPrice, dfs[ashi].closePrice, width=0.7, alpha=1.0, colorup='#FF0000', colordown='g')
+    candle_axs[ashi].scatter(idxs[ashi]+1, dfs[ashi].MA_mid, color="#aacf52", s=1) #close時点で値がでるのでこうして1シフトしておくのが正しい(だよね？確認してない) #TODO
+    candle_axs[ashi].scatter(idxs[ashi]+1, dfs[ashi].MA_short, color="#f6ad48", s=1)
+    candle_axs[ashi].scatter(idxs[ashi]+1, dfs[ashi].MA_long, color="#00b1a9", s=1)
     candle_axs[ashi].set_xticks(np.arange(0,len(dfs[ashi]),trip))
     candle_axs[ashi].set_xticklabels(dfs[ashi].openTime[0:len(dfs[ashi]):trip].dt.strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
 
