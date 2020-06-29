@@ -137,6 +137,9 @@ def move_tick_with_new_rex_in_m05(new_rex_in_m05):
     plt.draw()
 
 def next_tick(event):
+    if rexs["m05"] >= len(dfs["m05"]):
+        print("RIGHT EDGE!")
+        return
     move_tick_with_new_rex_in_m05(rexs["m05"]+1)
 
 def prev_tick(event):
