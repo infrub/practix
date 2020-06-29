@@ -8,7 +8,7 @@ import os
 from tqdm import trange
 
 
-pairname = "USDGBP" if len(sys.argv)==1 else sys.argv[1]
+pairname = "USDJPY" if len(sys.argv)==1 else sys.argv[1]
 rh_root = "raw_histories/" + pairname
 
 yoyuu = 144

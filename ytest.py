@@ -19,12 +19,16 @@ flamesize = 96
 yoyuu = 144
 ashis = ["m01","m05","m15","h01","h04","d01"]
 
-pairname = "USDGBP" if len(sys.argv)<=1 else sys.argv[1]
-weeki = 0 if len(sys.argv)<=2 else int(sys.argv[2])
+pairname = "USDJPY" if len(sys.argv)<=1 else sys.argv[1]
+weeki = 1 if len(sys.argv)<=2 else int(sys.argv[2])
 with open(f"raw_histories/{pairname}/style.json") as f:
     jsn1 = json.loads(f.read())
     ipv = jsn1["ipv"] # inverse of pips value (e.g. 100 in USDJPY)
     spread = jsn1["spread"] # spread (単位はpips)
+
+def textizerate(x):
+    if ipv == 100: return f"{x:.3f}"
+    elif ipv == 10000: return f"{x:.5f}"
 
 
 logfname = f"logs/{pairname}/week_{str(weeki).zfill(3)}.csv"
@@ -52,6 +56,9 @@ fig = plt.figure(figsize=(12,7), num=f"{pairname} week_"+ str(weeki).zfill(3))
 
 candle_axs = {ashi:None for ashi in ashis}
 mac_axs = {ashi:None for ashi in ashis}
+nowPriceLines = {}
+entryPriceLines = {}
+priceLineWidth = 0.6
 
 #(left,bottom,width,height)
 acax_position = (0.05,0.33,0.4,0.6) # A面のcandle axの位置
@@ -120,6 +127,9 @@ def create_ax(ashi):
     yhani = dfs[ashi].closePrice[lexs[ashi]:rexs[ashi]]
     candle_axs[ashi].grid(True,linestyle='dotted')
 
+    nowPriceLines[ashi] = candle_axs[ashi].hlines(dfs["m05"].closePrice[rexs["m05"]],0,len(dfs[ashi]), color="white", linewidth=priceLineWidth)
+    entryPriceLines[ashi] = candle_axs[ashi].hlines(0,0,len(dfs[ashi]), color="black", linewidth=priceLineWidth)
+
     update_text()
 
 
@@ -133,6 +143,8 @@ def move_tick_with_new_rex_in_m05(new_rex_in_m05):
         maxy = max(dfs[ashi].highPrice[lexs[ashi]:rexs[ashi]])
         buff = (maxy - miny)*0.05
         candle_axs[ashi].set_ylim(miny-buff,maxy+buff)
+        nowPriceLines[ashi].remove()
+        nowPriceLines[ashi] = candle_axs[ashi].hlines(dfs["m05"].closePrice[rexs["m05"]],0,len(dfs[ashi]), color="white", linewidth=priceLineWidth)
     update_text()
     plt.draw()
 
@@ -169,20 +181,21 @@ def update_text():
 
     nowPrice = dfs['m05'].closePrice[rexs['m05']-1]
 
-    ctext = f"now: {nowPrice:.5f}"
+    ctext = f"now: {textizerate(nowPrice)}"
     ttext = f"sum: {sumProfit:.1f} pips "
     if entryStatus == NOENT:
-        ttext += f"    last: {sumProfit:.1f} pips"
+        ttext += f"    last: {lastProfit:.1f} pips"
     elif entryStatus == LONG:
-        ctext += f"\nbought: {entryPrice:.5f}"
+        ctext += f"\nbought: {textizerate(entryPrice)}"
         ttext += f"    latent: {(nowPrice-entryPrice)*ipv - spread :.1f} pips"
     elif entryStatus == SHORT:
-        ctext += f"\nsold: {entryPrice:.5f}"
+        ctext += f"\nsold: {textizerate(entryPrice)}"
         ttext += f"    latent: {(entryPrice-nowPrice)*ipv - spread :.1f} pips"
 
     for ashi in ashis:
         candle_axs[ashi].text(0.05,0.95,ctext,verticalalignment='top',transform=candle_axs[ashi].transAxes)
     tbax.text(0,0.5,ttext,verticalalignment="center",horizontalalignment="left")
+    tbax.text(1,0.5,f"{100.0*(rexs['m05']-yoyuu)/(len(dfs['m05'])-yoyuu):.1f}% of the week",verticalalignment="center",horizontalalignment="right")
 
 
 
@@ -195,6 +208,9 @@ def buy(event):
     entryPrice = dfs["m05"].closePrice[entryX-1]
     entryTime = dfs["m05"].closeTime[entryX-1]
 
+    for ashi in ashis:
+        entryPriceLines[ashi].remove()
+        entryPriceLines[ashi] = candle_axs[ashi].hlines(entryPrice,0,len(dfs[ashi]), color="coral", linewidth=priceLineWidth)
     update_text()
     btn_sell.color = "black"
     btn_sell.label.set_text("")
@@ -211,6 +227,9 @@ def sell(event):
     entryPrice = dfs["m05"].closePrice[entryX-1]
     entryTime = dfs["m05"].closeTime[entryX-1]
 
+    for ashi in ashis:
+        entryPriceLines[ashi].remove()
+        entryPriceLines[ashi] = candle_axs[ashi].hlines(entryPrice,0,len(dfs[ashi]), color="cornflowerblue", linewidth=priceLineWidth)
     update_text()
     btn_sell.color = "blue"
     btn_sell.label.set_text("Exit")
@@ -233,6 +252,9 @@ def exit(event):
     entryStatus = NOENT
     sumProfit += lastProfit
 
+    for ashi in ashis:
+        entryPriceLines[ashi].remove()
+        entryPriceLines[ashi] = candle_axs[ashi].hlines(0,0,len(dfs[ashi]), color="black", linewidth=priceLineWidth)
     update_text()
     btn_sell.color = "cornflowerblue"
     btn_sell.label.set_text("Sell")
