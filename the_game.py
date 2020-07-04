@@ -26,12 +26,17 @@ pairname = "USDJPY" if len(sys.argv)<=1 else sys.argv[1]
 weeki = 1 if len(sys.argv)<=2 else int(sys.argv[2])
 with open(f"raw_histories/{pairname}/style.json") as f:
     jsn1 = json.loads(f.read())
+    rate_digpl = jsn1["rate_digpl"] # effective digit place of rates
+    pips_digpl = jsn1["pips_digpl"] # effective digit place of pips
     ipv = jsn1["ipv"] # inverse of pips value (e.g. 100 in USDJPY)
-    spread = jsn1["spread"] # spread (単位はpips)
+    spread_pips = jsn1["spread_pips"] # spread_pips (単位はpips)
 
-def textizerate(x):
-    if ipv == 100: return f"{x:.3f}"
-    elif ipv == 10000: return f"{x:.5f}"
+def textize_rate(x):
+    return ("{:."+str(rate_digpl)+"f}").format(x)
+
+def textize_pips(x):
+    return ("{:."+str(pips_digpl)+"f}").format(x)
+
 
 
 logfname = f"logs/{pairname}/week_{str(weeki).zfill(3)}.csv"
@@ -39,7 +44,7 @@ with open(logfname,"a") as f:
     f.write("entryX,exitX,entryTime,exitTime,entryStatus,entryPrice,exitPrice,profitPips\n")
 def wrlog(entryX,exitX,entryTime,exitTime,entryStatus,entryPrice,exitPrice,profitPips):
     with open(logfname,"a") as f:
-        f.write(f"{entryX},{exitX},{entryTime},{exitTime},{entryStatus},{entryPrice},{exitPrice},{profitPips}\n")
+        f.write(f"{entryX},{exitX},{entryTime},{exitTime},{entryStatus},{textize_rate(entryPrice)},{textize_rate(exitPrice)},{textize_pips(profitPips)}\n")
 
 
 
@@ -118,9 +123,9 @@ def create_ax(ashi):
     candle_axs[ashi].set_xticks(np.arange(0,len(dfs[ashi]),trip))
     candle_axs[ashi].set_xticklabels(dfs[ashi].openTime[0:len(dfs[ashi]):trip].dt.strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
 
-    miny = math.floor(min(dfs[ashi].lowPrice)*ipv/10)/ipv*10
-    maxy = math.ceil(max(dfs[ashi].highPrice)*ipv/10)/ipv*10
-    candle_axs[ashi].set_yticks(np.arange(miny,maxy,10/ipv))
+    miny = round(min(dfs[ashi].lowPrice),rate_digpl-2)-(0.1**(rate_digpl-2))
+    maxy = round(max(dfs[ashi].highPrice),rate_digpl-2)+(0.1**(rate_digpl-2))
+    candle_axs[ashi].set_yticks(np.arange(miny,maxy,0.1**(rate_digpl-2)))
 
     candle_axs[ashi].set_xlim(lexs[ashi],rexs[ashi])
     miny = min(dfs[ashi].lowPrice[lexs[ashi]:rexs[ashi]])
@@ -190,16 +195,16 @@ def update_text():
 
     nowPrice = dfs['m05'].closePrice[rexs['m05']-1]
 
-    ctext = f"now: {textizerate(nowPrice)}"
-    ttext = f"sum: {sumProfit:.1f} pips "
+    ctext = "now: " + textize_rate(nowPrice)
+    ttext = "sum: " + textize_pips(sumProfit) + " pips "
     if entryStatus == NOENT:
-        ttext += f"    last: {lastProfit:.1f} pips"
+        ttext += f"    last: " + textize_pips(lastProfit) + " pips"
     elif entryStatus == LONG:
-        ctext += f"\nbought: {textizerate(entryPrice)}"
-        ttext += f"    latent: {(nowPrice-entryPrice)*ipv - spread :.1f} pips"
+        ctext += f"\nbought: " + textize_rate(entryPrice)
+        ttext += f"    latent: " + textize_pips((nowPrice-entryPrice)*ipv - spread_pips) + " pips"
     elif entryStatus == SHORT:
-        ctext += f"\nsold: {textizerate(entryPrice)}"
-        ttext += f"    latent: {(entryPrice-nowPrice)*ipv - spread :.1f} pips"
+        ctext += f"\nsold: " + textize_rate(entryPrice)
+        ttext += f"    latent: " + textize_pips((entryPrice-nowPrice)*ipv - spread_pips) + " pips"
 
     for ashi in ashis:
         candle_axs[ashi].text(0.05,0.95,ctext,verticalalignment='top',transform=candle_axs[ashi].transAxes)
@@ -254,7 +259,7 @@ def exit(event):
         exitX = rexs["m05"]
         exitPrice = dfs["m05"].closePrice[exitX-1]
         exitTime = dfs["m05"].closeTime[exitX-1]
-        lastProfit = entryStatus*(exitPrice-entryPrice)*ipv - spread
+        lastProfit = entryStatus*(exitPrice-entryPrice)*ipv - spread_pips
 
     wrlog(entryX,exitX,entryTime,exitTime,entryStatus,entryPrice,exitPrice,lastProfit)
 
