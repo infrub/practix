@@ -9,6 +9,7 @@ from datetime import datetime as dt
 import os
 import sys
 import json
+import math
 
 
 
@@ -117,21 +118,23 @@ def create_ax(ashi):
     candle_axs[ashi].set_xticks(np.arange(0,len(dfs[ashi]),trip))
     candle_axs[ashi].set_xticklabels(dfs[ashi].openTime[0:len(dfs[ashi]):trip].dt.strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
 
-    
-    mac_axs[ashi].plot(idxs[ashi]+1, dfs[ashi].macd_signal, color="lightslategrey", linewidth = 1.5) # MACD(5,11,4) sig
-    mac_axs[ashi].plot(idxs[ashi]+1, dfs[ashi].macd_main, color="mediumvioletred", linewidth = 1.5) # MACD(5,11,4) main
-    mac_axs[ashi].grid(True,linestyle='dotted')
-    mac_axs[ashi].tick_params(labelbottom=False)
-
+    miny = math.floor(min(dfs[ashi].lowPrice)*ipv/10)/ipv*10
+    maxy = math.ceil(max(dfs[ashi].highPrice)*ipv/10)/ipv*10
+    candle_axs[ashi].set_yticks(np.arange(miny,maxy,10/ipv))
 
     candle_axs[ashi].set_xlim(lexs[ashi],rexs[ashi])
     miny = min(dfs[ashi].lowPrice[lexs[ashi]:rexs[ashi]])
     maxy = max(dfs[ashi].highPrice[lexs[ashi]:rexs[ashi]])
     buff = (maxy - miny)*0.05
     candle_axs[ashi].set_ylim(miny-buff,maxy+buff)
-
-    yhani = dfs[ashi].closePrice[lexs[ashi]:rexs[ashi]]
     candle_axs[ashi].grid(True,linestyle='dotted')
+
+    
+    mac_axs[ashi].plot(idxs[ashi]+1, dfs[ashi].macd_signal, color="lightslategrey", linewidth = 1.5) # MACD(5,11,4) sig
+    mac_axs[ashi].plot(idxs[ashi]+1, dfs[ashi].macd_main, color="mediumvioletred", linewidth = 1.5) # MACD(5,11,4) main
+    mac_axs[ashi].grid(True,linestyle='dotted')
+    mac_axs[ashi].tick_params(labelbottom=False)
+
 
     nowPriceLines[ashi] = candle_axs[ashi].hlines(dfs["m05"].closePrice[rexs["m05"]-1],0,len(dfs[ashi]), color="yellow", linewidth=priceLineWidth)
     entryPriceLines[ashi] = candle_axs[ashi].hlines(0,0,len(dfs[ashi]), color=bgcolor, linewidth=priceLineWidth)
