@@ -171,7 +171,7 @@ def next_tick(event):
 def prev_tick(event):
     move_tick_with_new_rex_in_m05(rexs["m05"]-1)
 
-def get_func_of_switch_ashi(ashi): #キーボードでいじったときだけなぜか色がすぐには変わらない(カーソル当てると変わる)
+def get_func_of_switch_ashi(ashi): # TODO キーボードでいじったときだけなぜか色がすぐには変わらない(カーソル当てると変わる)
     global watching_ashi
     def switch(event):
         global watching_ashi

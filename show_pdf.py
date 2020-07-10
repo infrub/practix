@@ -31,12 +31,15 @@ flamesize = 144
 yoyuu = 144
 ashis = ["m01","m05","m15","h01","h04","d01"]
 
-pairname = "USDJPY" if len(sys.argv)<=1 else sys.argv[1]
-weeki = 0 if len(sys.argv)<=2 else int(sys.argv[2])
+#pairname = "USDJPY" if len(sys.argv)<=1 else sys.argv[1]
+#weeki = 0 if len(sys.argv)<=2 else int(sys.argv[2])
+pairname = sys.argv[1]
+weeki = int(sys.argv[2])
+
 with open(f"raw_histories/{pairname}/style.json") as f:
     jsn1 = json.loads(f.read())
     ipv = jsn1["ipv"] # inverse of pips value (e.g. 100 in USDJPY)
-    spread = jsn1["spread"] # spread (単位はpips)
+    spread_pips = jsn1["spread_pips"] # spread_pips (単位はpips)
 
 def textizerate(x):
     if ipv == 100: return f"{x:.3f}"
