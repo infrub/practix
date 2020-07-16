@@ -70,35 +70,8 @@ mac_axs = {ashi:None for ashi in ashis}
 nowPriceLines = {}
 entryPriceLines = {}
 
-#(left,bottom,width,height)
-acax_position = (0.05,0.33,0.4,0.6) # A面のcandle axの位置
-amax_position = (0.05,0.13,0.4,0.2)
-bcax_position = (0.55,0.33,0.4,0.6)
-bmax_position = (0.55,0.13,0.4,0.2)
-tbox_position = (0.05,0.93,0.9,0.05)
-
-for ashi in ashis:
-    if ashi == "m05":
-        mac_axs[ashi] = fig.add_axes(amax_position, facecolor=bgcolor)
-        candle_axs[ashi] = fig.add_axes(acax_position,sharex=mac_axs[ashi], facecolor=bgcolor)
-    else:
-        mac_axs[ashi] = fig.add_axes(bmax_position, facecolor=bgcolor)
-        candle_axs[ashi] = fig.add_axes(bcax_position,sharex=mac_axs[ashi], facecolor=bgcolor)
-    fig.delaxes(mac_axs[ashi])
-    fig.delaxes(candle_axs[ashi])
-
-tbax = fig.add_axes(tbox_position, facecolor=bgcolor)
-tbax.spines['top'].set_visible(False)
-tbax.spines['bottom'].set_visible(False)
-tbax.spines['left'].set_visible(False)
-tbax.spines['right'].set_visible(False)
-tbax.xaxis.set_visible(False)
-tbax.yaxis.set_visible(False)
-
-
 rexs = {"m05":yoyuu}
 lexs = {"m05":max(0,yoyuu-flamesize)}
-
 for ashi in ashis:
     if ashi=="m05": continue
     rex = dfs["m05"]["matching_closeX_in_"+ashi][rexs["m05"]-1]
@@ -190,8 +163,8 @@ def update_text():
     for ashi in ashis:
         while len(candle_axs[ashi].texts) > 0:
             del candle_axs[ashi].texts[-1]
-    while len(tbax.texts) > 0:
-        del tbax.texts[-1]
+    while len(infobax.texts) > 0:
+        del infobax.texts[-1]
 
     nowPrice = dfs['m05'].closePrice[rexs['m05']-1]
 
@@ -208,8 +181,8 @@ def update_text():
 
     for ashi in ashis:
         candle_axs[ashi].text(0.05,0.95,ctext,verticalalignment='top',transform=candle_axs[ashi].transAxes)
-    tbax.text(0,0.5,ttext,verticalalignment="center",horizontalalignment="left")
-    tbax.text(1,0.5,f"{100.0*(rexs['m05']-yoyuu)/(len(dfs['m05'])-yoyuu):.1f}% of the week",verticalalignment="center",horizontalalignment="right")
+    infobax.text(0,0.5,ttext,verticalalignment="center",horizontalalignment="left")
+    infobax.text(1,0.5,f"{100.0*(rexs['m05']-yoyuu)/(len(dfs['m05'])-yoyuu):.1f}% of the week",verticalalignment="center",horizontalalignment="right")
 
 
 
@@ -286,32 +259,66 @@ def sellOrExit(event):
     elif entryStatus == SHORT: exit(event)
 
 
+
+x1,x2,x3,x4 = 0.05,0.45,0.55,0.95
+y0,y1,y2,y3,y4,y5,y6,y7 = 0.01,0.02,0.03,0.105,0.13,0.33,0.93,0.98
+
+#(left,bottom,width,height)
+acax_position = (x1,y5,x2-x1,y6-y5) # A面のcandle axの位置
+amax_position = (x1,y4,x2-x1,y5-y4)
+bcax_position = (x3,y5,x4-x3,y6-y5)
+bmax_position = (x3,y4,x4-x3,y5-y4)
+infobax_position = (x1,y6,x4-x1,y7-y6)
+
+for ashi in ashis:
+    if ashi == "m05":
+        mac_axs[ashi] = fig.add_axes(amax_position, facecolor=bgcolor)
+        candle_axs[ashi] = fig.add_axes(acax_position,sharex=mac_axs[ashi], facecolor=bgcolor)
+    else:
+        mac_axs[ashi] = fig.add_axes(bmax_position, facecolor=bgcolor)
+        candle_axs[ashi] = fig.add_axes(bcax_position,sharex=mac_axs[ashi], facecolor=bgcolor)
+    fig.delaxes(mac_axs[ashi])
+    fig.delaxes(candle_axs[ashi])
+
+infobax = fig.add_axes(infobax_position, facecolor=bgcolor)
+infobax.spines['top'].set_visible(False)
+infobax.spines['bottom'].set_visible(False)
+infobax.spines['left'].set_visible(False)
+infobax.spines['right'].set_visible(False)
+infobax.xaxis.set_visible(False)
+infobax.yaxis.set_visible(False)
+
+
 # ボタンを設置。冗長だがボタンを入れた変数の束縛がなくなるとボタンが働かなくなるので仕方ない
-btn_sell = Button(plt.axes([0.05, 0.03, 0.1, 0.075]), 'Sell',color = 'cornflowerblue')
+btn_sell = Button(plt.axes([0.05, y2, 0.1, y3-y2]), 'Sell',color = 'cornflowerblue')
 btn_sell.on_clicked(sellOrExit)
-btn_buy = Button(plt.axes([0.16, 0.03, 0.1, 0.075]), 'Buy',color = 'coral')
+btn_buy = Button(plt.axes([0.16, y2, 0.1, y3-y2]), 'Buy',color = 'coral')
 btn_buy.on_clicked(buyOrExit)
 
-btn_prev = Button(plt.axes([0.44, 0.03, 0.055, 0.075]), 'Prev',color = bgcolor)
+btn_prev = Button(plt.axes([0.44, y2, 0.055, y3-y2]), 'Prev',color = bgcolor)
 btn_prev.on_clicked(prev_tick)
-btn_next = Button(plt.axes([0.505, 0.03, 0.055, 0.075]), 'Next',color = bgcolor)
+btn_next = Button(plt.axes([0.505, y2, 0.055, y3-y2]), 'Next',color = bgcolor)
 btn_next.on_clicked(next_tick)
 
 btns = {}
-btns["m01"] = Button(plt.axes([0.65, 0.03, 0.045, 0.075]), 'm01',color = bgcolor)
+btns["m01"] = Button(plt.axes([0.65, y2, 0.045, y3-y2]), 'm01',color = bgcolor)
 btns["m01"].on_clicked(get_func_of_switch_ashi("m01"))
-btn_dummy1 = Button(plt.axes([0.70, 0.03, 0.045, 0.075]), '',color = bgcolor)
+btn_dummy1 = Button(plt.axes([0.70, y2, 0.045, y3-y2]), '',color = bgcolor)
 btn_dummy1.on_clicked(lambda x: x)
-btns["m15"] = Button(plt.axes([0.75, 0.03, 0.045, 0.075]), 'm15',color = bgcolor)
+btns["m15"] = Button(plt.axes([0.75, y2, 0.045, y3-y2]), 'm15',color = bgcolor)
 btns["m15"].on_clicked(get_func_of_switch_ashi("m15"))
-btns["h01"] = Button(plt.axes([0.80, 0.03, 0.045, 0.075]), 'h01',color = bgcolor)
+btns["h01"] = Button(plt.axes([0.80, y2, 0.045, y3-y2]), 'h01',color = bgcolor)
 btns["h01"].on_clicked(get_func_of_switch_ashi("h01"))
-btns["h04"] = Button(plt.axes([0.85, 0.03, 0.045, 0.075]), 'h04',color = bgcolor)
+btns["h04"] = Button(plt.axes([0.85, y2, 0.045, y3-y2]), 'h04',color = bgcolor)
 btns["h04"].on_clicked(get_func_of_switch_ashi("h04"))
-btns["d01"] = Button(plt.axes([0.90, 0.03, 0.045, 0.075]), 'd01',color = bgcolor)
+btns["d01"] = Button(plt.axes([0.90, y2, 0.045, y3-y2]), 'd01',color = bgcolor)
 btns["d01"].on_clicked(get_func_of_switch_ashi("d01"))
 
 
+twbox = TextBox(plt.axes([x1, y0, x4-x1, y1-y0]), "", initial="")
+
+
+# キーボードで操作もね
 try:
     with open(f"configs/ytest_config.json") as f:
         jsn2 = json.loads(f.read())
@@ -332,6 +339,8 @@ except:
 plt.connect('key_press_event',keycon)
 
 
+
+
 ashi = "m05"
 fig.add_axes(mac_axs[ashi])
 fig.add_axes(candle_axs[ashi])
@@ -339,13 +348,12 @@ fig.add_axes(candle_axs[ashi])
 ashi = watching_ashi
 fig.add_axes(mac_axs[ashi])
 fig.add_axes(candle_axs[ashi])
-btns[watching_ashi].color = "lightseagreen"
 
 for ashi in ashis:
     create_ax(ashi)
 
+btns[watching_ashi].color = "lightseagreen"
 
-    
 
 plt.show()
 
