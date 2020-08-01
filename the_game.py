@@ -260,7 +260,7 @@ def sellOrExit(event):
 
 
 def mutter(text):
-	
+    print(text)
 
 
 
@@ -319,8 +319,8 @@ btns["d01"] = Button(plt.axes([0.90, y2, 0.045, y3-y2]), 'd01',color = bgcolor)
 btns["d01"].on_clicked(get_func_of_switch_ashi("d01"))
 
 
-mtrbox = TextBox(plt.axes([x1, y0, x4-x1, y1-y0]), "", initial="")
-mtrbox.on_submit(lambda val: submit(val, ax.set_ylim, -1))
+mtrbox = TextBox(plt.axes([x1, y0, x4-x1, y1-y0]), "", initial="",color=bgcolor,hovercolor="#333333")
+mtrbox.on_submit(lambda text: mutter(text))
 
 # キーボードで操作もね
 try:
