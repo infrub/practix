@@ -259,9 +259,13 @@ def sellOrExit(event):
     elif entryStatus == SHORT: exit(event)
 
 
+def mutter(text):
+	
+
+
 
 x1,x2,x3,x4 = 0.05,0.45,0.55,0.95
-y0,y1,y2,y3,y4,y5,y6,y7 = 0.01,0.02,0.03,0.105,0.13,0.33,0.93,0.98
+y0,y1,y2,y3,y4,y5,y6,y7 = 0.03,0.06,0.08,0.16,0.18,0.34,0.93,0.98
 
 #(left,bottom,width,height)
 acax_position = (x1,y5,x2-x1,y6-y5) # A面のcandle axの位置
@@ -315,8 +319,8 @@ btns["d01"] = Button(plt.axes([0.90, y2, 0.045, y3-y2]), 'd01',color = bgcolor)
 btns["d01"].on_clicked(get_func_of_switch_ashi("d01"))
 
 
-twbox = TextBox(plt.axes([x1, y0, x4-x1, y1-y0]), "", initial="")
-
+mtrbox = TextBox(plt.axes([x1, y0, x4-x1, y1-y0]), "", initial="")
+mtrbox.on_submit(lambda val: submit(val, ax.set_ylim, -1))
 
 # キーボードで操作もね
 try:
