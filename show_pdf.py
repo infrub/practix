@@ -63,6 +63,8 @@ order_df["profitPipsPer5Min"] = order_df.profitPips / (order_df.exitX - order_df
 buy_order_df = order_df[order_df.entryStatus==1]
 sell_order_df = order_df[order_df.entryStatus==-1]
 
+mutter_df = pd.read_csv("logs/" + pairname + "/week_" + str(weeki).zfill(3) + ".mut", parse_dates=False)
+
 #styles
 priceLineWidth = 0.6
 bgcolor = "#131313"
@@ -137,6 +139,12 @@ def create_ax(ashi):
     gain_axs[ashi].set_yticks([0])
     gain_axs[ashi].set_yticklabels([""])
     gain_axs[ashi].tick_params(labelbottom=False)
+
+    cnt = 1
+    for mutteri, mutter in mutter_df.iterrows():
+        if lexs["m05"] < mutter.nowX <= rexs["m05"]:
+            mutter_axs[ashi].text(0.0, 1.0-cnt*0.3, f"{mutter.nowTime} {mutter.text}", size=12)
+            cnt += 1
 
 
     candle_axs[ashi].set_xlim(lexs[ashi],rexs[ashi])
@@ -224,6 +232,13 @@ def plot_and_save_all_page():
         mac_axs[ashi] = fig.add_axes(amax_position, facecolor=bgcolor)
         candle_axs[ashi] = fig.add_axes(acax_position,sharex=mac_axs[ashi], facecolor=bgcolor)
         gain_axs[ashi] = fig.add_axes(agax_position, sharex=mac_axs[ashi], facecolor=bgcolor)
+        mutter_axs[ashi] = fig.add_axes(atax_position, facecolor=bgcolor)
+        mutter_axs[ashi].spines['top'].set_visible(False)
+        mutter_axs[ashi].spines['bottom'].set_visible(False)
+        mutter_axs[ashi].spines['left'].set_visible(False)
+        mutter_axs[ashi].spines['right'].set_visible(False)
+        mutter_axs[ashi].xaxis.set_visible(False)
+        mutter_axs[ashi].yaxis.set_visible(False)
         create_ax(ashi)
         pdf.savefig()
         plt.close()
