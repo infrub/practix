@@ -259,8 +259,15 @@ def sellOrExit(event):
     elif entryStatus == SHORT: exit(event)
 
 
+mutfname = f"logs/{pairname}/week_{str(weeki).zfill(3)}.mut"
+with open(mutfname,"a") as f:
+    f.write(f"nowX,text\n")
 def mutter(text):
-    print(text)
+    if len(text)!=0:
+        with open(mutfname,"a") as f:
+            f.write(f"{rexs['m05']},{text}\n")
+    else:
+        hoge = text + "" # なぜかこのくらいしないとバグる
 
 
 
@@ -319,25 +326,48 @@ btns["d01"] = Button(plt.axes([0.90, y2, 0.045, y3-y2]), 'd01',color = bgcolor)
 btns["d01"].on_clicked(get_func_of_switch_ashi("d01"))
 
 
-mtrbox = TextBox(plt.axes([x1, y0, x4-x1, y1-y0]), "", initial="",color=bgcolor,hovercolor="#333333")
-mtrbox.on_submit(lambda text: mutter(text))
+
+keycon_available = True
+
+class MyTextBox(TextBox):
+    def begin_typing(self, x):
+        global keycon_available
+        super().begin_typing(x)
+        #print("keycon disabled")
+        keycon_available = False
+
+    def stop_typing(self):
+        global keycon_available
+        super().stop_typing()
+        #print("keycon enabled")
+        keycon_available = True
+
+    def what_do_on_submit(self,text):
+        mutter(text)
+        self.set_val("")
+
+mtrbox = MyTextBox(plt.axes([x1, y0, x4-x1, y1-y0]), "", initial="",color=bgcolor,hovercolor="#333333")
+mtrbox.on_submit(mtrbox.what_do_on_submit)
 
 # キーボードで操作もね
 try:
     with open(f"configs/ytest_config.json") as f:
         jsn2 = json.loads(f.read())
         def keycon(event):
-            if event.key in jsn2["keyconfig"]["buy"]: buy(event)
-            elif event.key in jsn2["keyconfig"]["sell"]: sell(event)
-            elif event.key in jsn2["keyconfig"]["exit"]: exit(event)
-            elif event.key in jsn2["keyconfig"]["prev"]: prev_tick(event)
-            elif event.key in jsn2["keyconfig"]["next"]: next_tick(event)
-            elif event.key in jsn2["keyconfig"]["m01"]: get_func_of_switch_ashi("m01")(event)
-            elif event.key in jsn2["keyconfig"]["m15"]: get_func_of_switch_ashi("m15")(event)
-            elif event.key in jsn2["keyconfig"]["h01"]: get_func_of_switch_ashi("h01")(event)
-            elif event.key in jsn2["keyconfig"]["h04"]: get_func_of_switch_ashi("h04")(event)
-            elif event.key in jsn2["keyconfig"]["d01"]: get_func_of_switch_ashi("d01")(event)
-            else: pass
+            if keycon_available:
+                if event.key in jsn2["keyconfig"]["buy"]: buy(event)
+                elif event.key in jsn2["keyconfig"]["sell"]: sell(event)
+                elif event.key in jsn2["keyconfig"]["exit"]: exit(event)
+                elif event.key in jsn2["keyconfig"]["prev"]: prev_tick(event)
+                elif event.key in jsn2["keyconfig"]["next"]: next_tick(event)
+                elif event.key in jsn2["keyconfig"]["m01"]: get_func_of_switch_ashi("m01")(event)
+                elif event.key in jsn2["keyconfig"]["m15"]: get_func_of_switch_ashi("m15")(event)
+                elif event.key in jsn2["keyconfig"]["h01"]: get_func_of_switch_ashi("h01")(event)
+                elif event.key in jsn2["keyconfig"]["h04"]: get_func_of_switch_ashi("h04")(event)
+                elif event.key in jsn2["keyconfig"]["d01"]: get_func_of_switch_ashi("d01")(event)
+                else: pass
+            else:
+                pass
 except:
     raise Exception("please make ytest_config.json")
 plt.connect('key_press_event',keycon)
