@@ -261,11 +261,13 @@ def sellOrExit(event):
 
 mutfname = f"logs/{pairname}/week_{str(weeki).zfill(3)}.mut"
 with open(mutfname,"a") as f:
-    f.write(f"nowX,text\n")
+    f.write(f"nowX,nowTime,text\n")
 def mutter(text):
     if len(text)!=0:
+        nowX = rexs['m05']
+        nowTime = dfs["m05"].closeTime[nowX-1]
         with open(mutfname,"a") as f:
-            f.write(f"{rexs['m05']},{text}\n")
+            f.write(f"{nowX},{nowTime.strftime('%Y/%m/%d %H:%M')},{text}\n")
     else:
         hoge = text + "" # なぜかこのくらいしないとバグる
 

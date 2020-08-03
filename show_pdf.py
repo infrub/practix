@@ -71,11 +71,13 @@ bgcolor = "#131313"
 candle_axs = {ashi:None for ashi in ashis}
 mac_axs = {ashi:None for ashi in ashis}
 gain_axs = {ashi:None for ashi in ashis}
+mutter_axs = {ashi:None for ashi in ashis}
 
 #(left,bottom,width,height)
-acax_position = (0.05,0.33,0.9,0.6) # A面のcandle axの位置
-amax_position = (0.05,0.13,0.9,0.2)
-agax_position = (0.05,0.03,0.9,0.1)
+acax_position = (0.05,0.33,0.9,0.64) # A面のcandle axの位置
+amax_position = (0.05,0.20,0.9,0.13)
+agax_position = (0.05,0.10,0.9,0.10)
+atax_position = (0.05,0.03,0.9,0.07)
 
 rexs = {}
 lexs = {}
