@@ -62,7 +62,8 @@ for ashi in ashis:
 priceLineWidth = 0.6
 bgcolor = "#131313"
 plt.style.use('dark_background')
-fig = plt.figure(figsize=(12,7), num=f"{pairname} week_"+ str(weeki).zfill(3), facecolor=bgcolor)
+#fig = plt.figure(figsize=(12,7), num=f"{pairname} week_"+ str(weeki).zfill(3), facecolor=bgcolor)
+fig = plt.figure(figsize=(12,7), num=f"the_game", facecolor=bgcolor)
 
 
 candle_axs = {ashi:None for ashi in ashis}
@@ -93,8 +94,8 @@ def create_ax(ashi):
     candle_axs[ashi].scatter(idxs[ashi]+1, dfs[ashi].MA_short, color="#f6ad48", s=1) # 終値の単純移動平均(ピリオド5)
     candle_axs[ashi].scatter(idxs[ashi]+1, dfs[ashi].MA_mid, color="#aacf52", s=1) # 終値の単純移動平均(ピリオド13)
     candle_axs[ashi].scatter(idxs[ashi]+1, dfs[ashi].MA_long, color="#00b1a9", s=1) # 終値の単純移動平均(ピリオド25)
-    candle_axs[ashi].set_xticks(np.arange(0,len(dfs[ashi]),trip))
-    candle_axs[ashi].set_xticklabels(dfs[ashi].openTime[0:len(dfs[ashi]):trip].dt.strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
+    candle_axs[ashi].set_xticks(np.arange(1,len(dfs[ashi]),trip)) # 1ずらしたほうが罫線のキリがよくなる
+    candle_axs[ashi].set_xticklabels(dfs[ashi].openTime[1:len(dfs[ashi]):trip].dt.strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
 
     miny = round(min(dfs[ashi].lowPrice),rate_digpl-2)-(0.1**(rate_digpl-2))
     maxy = round(max(dfs[ashi].highPrice),rate_digpl-2)+(0.1**(rate_digpl-2))
