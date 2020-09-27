@@ -24,6 +24,8 @@ ashis = ["m01","m05","m15","h01","h04","d01"]
 
 pairname = "USDJPY" if len(sys.argv)<=1 else sys.argv[1]
 weeki = 1 if len(sys.argv)<=2 else int(sys.argv[2])
+init_m05_rex = yoyuu if len(sys.argv)<=3 else int(sys.argv[3])
+
 with open(f"raw_histories/{pairname}/style.json") as f:
     jsn1 = json.loads(f.read())
     rate_digpl = jsn1["rate_digpl"] # effective digit place of rates
@@ -71,8 +73,8 @@ mac_axs = {ashi:None for ashi in ashis}
 nowPriceLines = {}
 entryPriceLines = {}
 
-rexs = {"m05":yoyuu}
-lexs = {"m05":max(0,yoyuu-flamesize)}
+rexs = {"m05":init_m05_rex}
+lexs = {"m05":max(0,init_m05_rex-flamesize)}
 for ashi in ashis:
     if ashi=="m05": continue
     rex = dfs["m05"]["matching_closeX_in_"+ashi][rexs["m05"]-1]

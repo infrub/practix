@@ -92,8 +92,8 @@ def create_ax(ashi):
     candle_axs[ashi].scatter(idxs[ashi]+1, dfs[ashi].MA_short, color="#f6ad48", s=1, label="SAR(5)") # 終値の単純移動平均(ピリオド5)
     candle_axs[ashi].scatter(idxs[ashi]+1, dfs[ashi].MA_mid, color="#aacf52", s=1, label="SAR(13)") # 終値の単純移動平均(ピリオド13)
     candle_axs[ashi].scatter(idxs[ashi]+1, dfs[ashi].MA_long, color="#00b1a9", s=1, label="SAR(25)") # 終値の単純移動平均(ピリオド25)
-    candle_axs[ashi].set_xticks(np.arange(0,len(dfs[ashi]),trip))
-    candle_axs[ashi].set_xticklabels(dfs[ashi].openTime[0:len(dfs[ashi]):trip].dt.strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
+    candle_axs[ashi].set_xticks(np.arange(1,len(dfs[ashi]),trip)) # 1ずらしたほうが罫線のキリがよくなる
+    candle_axs[ashi].set_xticklabels(dfs[ashi].openTime[1:len(dfs[ashi]):trip].dt.strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
 
     candle_axs[ashi].scatter(buy_order_df.entryX+0.25, buy_order_df.entryPrice,s=24,c='#ffbbbb',marker='>', label="INVIS_LABEL")
     candle_axs[ashi].scatter(buy_order_df.exitX-0.25, buy_order_df.exitPrice,s=24,c='#ffbbbb',marker='<', label="INVIS_LABEL")
