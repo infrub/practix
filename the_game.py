@@ -24,7 +24,7 @@ ashis = ["m01","m05","m15","h01","h04","d01"]
 
 pairname = "USDJPY" if len(sys.argv)<=1 else sys.argv[1]
 weeki = 1 if len(sys.argv)<=2 else int(sys.argv[2])
-init_m05_rex = yoyuu if len(sys.argv)<=3 else int(sys.argv[3])
+init_m01_rex = yoyuu if len(sys.argv)<=3 else int(sys.argv[3])
 
 with open(f"raw_histories/{pairname}/style.json") as f:
     jsn1 = json.loads(f.read())
@@ -73,11 +73,11 @@ mac_axs = {ashi:None for ashi in ashis}
 nowPriceLines = {}
 entryPriceLines = {}
 
-rexs = {"m05":init_m05_rex}
-lexs = {"m05":max(0,init_m05_rex-flamesize)}
+rexs = {"m01":init_m01_rex}
+lexs = {"m01":max(0,init_m01_rex-flamesize)}
 for ashi in ashis:
-    if ashi=="m05": continue
-    rex = dfs["m05"]["matching_closeX_in_"+ashi][rexs["m05"]-1]
+    if ashi=="m01": continue
+    rex = dfs["m01"]["matching_closeX_in_"+ashi][rexs["m01"]-1]
     rexs[ashi] = rex
     lexs[ashi] = max(0,rex-flamesize)
 
@@ -117,15 +117,15 @@ def create_ax(ashi):
     mac_axs[ashi].tick_params(labelbottom=False)
 
 
-    nowPriceLines[ashi] = candle_axs[ashi].hlines(dfs["m05"].closePrice[rexs["m05"]-1],0,len(dfs[ashi]), color="yellow", linewidth=priceLineWidth)
+    nowPriceLines[ashi] = candle_axs[ashi].hlines(dfs["m01"].closePrice[rexs["m01"]-1],0,len(dfs[ashi]), color="yellow", linewidth=priceLineWidth)
     entryPriceLines[ashi] = candle_axs[ashi].hlines(0,0,len(dfs[ashi]), color=bgcolor, linewidth=priceLineWidth)
 
     update_text()
 
 
-def move_tick_with_new_rex_in_m05(new_rex_in_m05):
+def move_tick_with_new_rex(new_rex_in_bashi,bashi):
     for ashi in ashis:
-        rex = dfs["m05"]["matching_closeX_in_"+ashi][new_rex_in_m05-1]
+        rex = dfs[bashi]["matching_closeX_in_"+ashi][new_rex_in_bashi-1]
         rexs[ashi] = rex
         lexs[ashi] = max(0,rex-flamesize)
         candle_axs[ashi].set_xlim(lexs[ashi],rexs[ashi])
@@ -134,18 +134,19 @@ def move_tick_with_new_rex_in_m05(new_rex_in_m05):
         buff = (maxy - miny)*0.05
         candle_axs[ashi].set_ylim(miny-buff,maxy+buff)
         nowPriceLines[ashi].remove()
-        nowPriceLines[ashi] = candle_axs[ashi].hlines(dfs["m05"].closePrice[rexs["m05"]-1],0,len(dfs[ashi]), color="yellow", linewidth=priceLineWidth)
+        nowPriceLines[ashi] = candle_axs[ashi].hlines(dfs[bashi].closePrice[rexs[bashi]-1],0,len(dfs[ashi]), color="yellow", linewidth=priceLineWidth)
     update_text()
     plt.draw()
 
-def next_tick(event):
-    if rexs["m05"] >= len(dfs["m05"]):
+def next_tick(event,bashi):
+    if rexs[bashi] >= len(dfs[bashi]):
         print("RIGHT EDGE!")
         return
-    move_tick_with_new_rex_in_m05(rexs["m05"]+1)
+    move_tick_with_new_rex(rexs[bashi]+1,bashi)
 
-def prev_tick(event):
-    move_tick_with_new_rex_in_m05(rexs["m05"]-1)
+def prev_tick(event,bashi):
+    move_tick_with_new_rex(rexs[bashi]-1,bashi)
+
 
 def get_func_of_switch_ashi(ashi): # TODO キーボードでいじったときだけなぜか色がすぐには変わらない(カーソル当てると変わる)
     global watching_ashi
@@ -169,7 +170,7 @@ def update_text():
     while len(infobax.texts) > 0:
         del infobax.texts[-1]
 
-    nowPrice = dfs['m05'].closePrice[rexs['m05']-1]
+    nowPrice = dfs['m01'].closePrice[rexs['m01']-1]
 
     ctext = "now: " + textize_rate(nowPrice)
     ttext = "sum: " + textize_pips(sumProfit) + " pips "
@@ -185,7 +186,7 @@ def update_text():
     for ashi in ashis:
         candle_axs[ashi].text(0.05,0.95,ctext,verticalalignment='top',transform=candle_axs[ashi].transAxes)
     infobax.text(0,0.5,ttext,verticalalignment="center",horizontalalignment="left")
-    infobax.text(1,0.5,f"{100.0*(rexs['m05']-yoyuu)/(len(dfs['m05'])-yoyuu):.1f}% of the week",verticalalignment="center",horizontalalignment="right")
+    infobax.text(1,0.5,f"{100.0*(rexs['m01']-yoyuu)/(len(dfs['m01'])-yoyuu):.1f}% of the week",verticalalignment="center",horizontalalignment="right")
 
 
 
@@ -194,9 +195,9 @@ def buy(event):
     if entryStatus != NOENT: return
 
     entryStatus = LONG
-    entryX = rexs["m05"]
-    entryPrice = dfs["m05"].closePrice[entryX-1]
-    entryTime = dfs["m05"].closeTime[entryX-1]
+    entryX = rexs["m01"]
+    entryPrice = dfs["m01"].closePrice[entryX-1]
+    entryTime = dfs["m01"].closeTime[entryX-1]
 
     for ashi in ashis:
         entryPriceLines[ashi].remove()
@@ -213,9 +214,9 @@ def sell(event):
     if entryStatus != NOENT: return
 
     entryStatus = SHORT
-    entryX = rexs["m05"]
-    entryPrice = dfs["m05"].closePrice[entryX-1]
-    entryTime = dfs["m05"].closeTime[entryX-1]
+    entryX = rexs["m01"]
+    entryPrice = dfs["m01"].closePrice[entryX-1]
+    entryTime = dfs["m01"].closeTime[entryX-1]
 
     for ashi in ashis:
         entryPriceLines[ashi].remove()
@@ -232,9 +233,9 @@ def exit(event):
     if entryStatus == NOENT:
         return
     else:
-        exitX = rexs["m05"]
-        exitPrice = dfs["m05"].closePrice[exitX-1]
-        exitTime = dfs["m05"].closeTime[exitX-1]
+        exitX = rexs["m01"]
+        exitPrice = dfs["m01"].closePrice[exitX-1]
+        exitTime = dfs["m01"].closeTime[exitX-1]
         lastProfit = entryStatus*(exitPrice-entryPrice)*ipv - spread_pips
 
     wrlog(entryX,exitX,entryTime,exitTime,entryStatus,entryPrice,exitPrice,lastProfit)
@@ -267,8 +268,8 @@ with open(mutfname,"a") as f:
     f.write(f"nowX,nowTime,text\n")
 def mutter(text):
     if len(text)!=0:
-        nowX = rexs['m05']
-        nowTime = dfs["m05"].closeTime[nowX-1]
+        nowX = rexs['m01']
+        nowTime = dfs["m01"].closeTime[nowX-1]
         with open(mutfname,"a") as f:
             f.write(f"{nowX},{nowTime.strftime('%Y/%m/%d %H:%M')},{text}\n")
     else:
@@ -287,7 +288,7 @@ bmax_position = (x3,y4,x4-x3,y5-y4)
 infobax_position = (x1,y6,x4-x1,y7-y6)
 
 for ashi in ashis:
-    if ashi == "m05":
+    if ashi == "m01":
         mac_axs[ashi] = fig.add_axes(amax_position, facecolor=bgcolor)
         candle_axs[ashi] = fig.add_axes(acax_position,sharex=mac_axs[ashi], facecolor=bgcolor)
     else:
@@ -311,16 +312,21 @@ btn_sell.on_clicked(sellOrExit)
 btn_buy = Button(plt.axes([0.16, y2, 0.1, y3-y2]), 'Buy',color = 'coral')
 btn_buy.on_clicked(buyOrExit)
 
-btn_prev = Button(plt.axes([0.44, y2, 0.055, y3-y2]), 'Prev',color = bgcolor)
-btn_prev.on_clicked(prev_tick)
-btn_next = Button(plt.axes([0.505, y2, 0.055, y3-y2]), 'Next',color = bgcolor)
-btn_next.on_clicked(next_tick)
+btn_sprev = Button(plt.axes([0.37, y2, 0.055, y3-y2]), 'prev',color = bgcolor)
+btn_sprev.on_clicked(lambda event: next_tick(event,"m01"))
+btn_snext = Button(plt.axes([0.43, y2, 0.055, y3-y2]), 'next',color = bgcolor)
+btn_snext.on_clicked(lambda event: next_tick(event,"m01"))
+
+btn_gprev = Button(plt.axes([0.515, y2, 0.055, y3-y2]), 'PREV',color = bgcolor)
+btn_gprev.on_clicked(lambda event: next_tick(event,watching_ashi))
+btn_gnext = Button(plt.axes([0.575, y2, 0.055, y3-y2]), 'NEXT',color = bgcolor)
+btn_gnext.on_clicked(lambda event: next_tick(event,watching_ashi))
 
 btns = {}
-btns["m01"] = Button(plt.axes([0.65, y2, 0.045, y3-y2]), 'm01',color = bgcolor)
-btns["m01"].on_clicked(get_func_of_switch_ashi("m01"))
-btn_dummy1 = Button(plt.axes([0.70, y2, 0.045, y3-y2]), '',color = bgcolor)
+btn_dummy1 = Button(plt.axes([0.65, y2, 0.045, y3-y2]), '',color = bgcolor)
 btn_dummy1.on_clicked(lambda x: x)
+btns["m05"] = Button(plt.axes([0.70, y2, 0.045, y3-y2]), 'm05',color = bgcolor)
+btns["m05"].on_clicked(get_func_of_switch_ashi("m05"))
 btns["m15"] = Button(plt.axes([0.75, y2, 0.045, y3-y2]), 'm15',color = bgcolor)
 btns["m15"].on_clicked(get_func_of_switch_ashi("m15"))
 btns["h01"] = Button(plt.axes([0.80, y2, 0.045, y3-y2]), 'h01',color = bgcolor)
@@ -365,7 +371,7 @@ try:
                 elif event.key in jsn2["keyconfig"]["exit"]: exit(event)
                 elif event.key in jsn2["keyconfig"]["prev"]: prev_tick(event)
                 elif event.key in jsn2["keyconfig"]["next"]: next_tick(event)
-                elif event.key in jsn2["keyconfig"]["m01"]: get_func_of_switch_ashi("m01")(event)
+                elif event.key in jsn2["keyconfig"]["m05"]: get_func_of_switch_ashi("m05")(event)
                 elif event.key in jsn2["keyconfig"]["m15"]: get_func_of_switch_ashi("m15")(event)
                 elif event.key in jsn2["keyconfig"]["h01"]: get_func_of_switch_ashi("h01")(event)
                 elif event.key in jsn2["keyconfig"]["h04"]: get_func_of_switch_ashi("h04")(event)
@@ -380,7 +386,7 @@ plt.connect('key_press_event',keycon)
 
 
 
-ashi = "m05"
+ashi = "m01"
 fig.add_axes(mac_axs[ashi])
 fig.add_axes(candle_axs[ashi])
 
