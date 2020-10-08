@@ -320,7 +320,7 @@ dd = 0.005
 d1 = 0.045
 d2 = d1 + dd
 d3 = 0.055
-d4 = 0.1
+d4 = 0.08
 
 btns = {}
 btns["m05"] = Button(plt.axes([x1, y2, d1, y3-y2]), 'm05',color = bgcolor)
@@ -339,16 +339,17 @@ btn_prev_macro.on_clicked(prev_macro)
 btn_next_macro = Button(plt.axes([x2-d3, y2, d3, y3-y2]), 'NEXT',color = bgcolor)
 btn_next_macro.on_clicked(next_macro)
 
-btn_prev_micro = Button(plt.axes([x3, y2, d3, y3-y2]), 'prev',color = bgcolor)
+btn_sell = Button(plt.axes([x3, y2, d4, y3-y2]), 'Sell',color = 'cornflowerblue')
+btn_sell.on_clicked(sellOrExit)
+btn_buy = Button(plt.axes([x3+d4+dd, y2, d4, y3-y2]), 'Buy',color = 'coral')
+btn_buy.on_clicked(buyOrExit)
+
+btn_prev_micro = Button(plt.axes([x4-d3*2-dd, y2, d3, y3-y2]), 'prev',color = bgcolor)
 btn_prev_micro.on_clicked(prev_micro)
-btn_next_micro = Button(plt.axes([x3+d3+dd, y2, d3, y3-y2]), 'next',color = bgcolor)
+btn_next_micro = Button(plt.axes([x4-d3, y2, d3, y3-y2]), 'next',color = bgcolor)
 btn_next_micro.on_clicked(next_micro)
 
 
-btn_sell = Button(plt.axes([x4-d4*2-dd, y2, d4, y3-y2]), 'Sell',color = 'cornflowerblue')
-btn_sell.on_clicked(sellOrExit)
-btn_buy = Button(plt.axes([x4-d4, y2, d4, y3-y2]), 'Buy',color = 'coral')
-btn_buy.on_clicked(buyOrExit)
 
 
 
