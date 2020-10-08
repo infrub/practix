@@ -89,6 +89,7 @@ entryPrice = None
 entryX = None
 lastProfit = 0
 sumProfit = 0
+nowPrice = None
 
 
 def create_ax(ashi):
@@ -117,10 +118,9 @@ def create_ax(ashi):
     mac_axs[ashi].tick_params(labelbottom=False)
 
 
-    nowPriceLines[ashi] = candle_axs[ashi].hlines(dfs["m01"].closePrice[rexs["m01"]-1],0,len(dfs[ashi]), color="yellow", linewidth=priceLineWidth)
+    nowPriceLines[ashi] = candle_axs[ashi].hlines(0,0,len(dfs[ashi]), color="yellow", linewidth=priceLineWidth)
     entryPriceLines[ashi] = candle_axs[ashi].hlines(0,0,len(dfs[ashi]), color=bgcolor, linewidth=priceLineWidth)
 
-    update_text()
 
 
 def move_tick_with_new_rex(new_rex_in_bashi,bashi):
@@ -133,8 +133,7 @@ def move_tick_with_new_rex(new_rex_in_bashi,bashi):
         maxy = max(dfs[ashi].highPrice[lexs[ashi]:rexs[ashi]])
         buff = (maxy - miny)*0.05
         candle_axs[ashi].set_ylim(miny-buff,maxy+buff)
-        nowPriceLines[ashi].remove()
-        nowPriceLines[ashi] = candle_axs[ashi].hlines(dfs[bashi].closePrice[rexs[bashi]-1],0,len(dfs[ashi]), color="yellow", linewidth=priceLineWidth)
+    update_nowPrice()
     update_text()
     plt.draw()
 
@@ -179,8 +178,6 @@ def update_text():
     while len(infobax.texts) > 0:
         del infobax.texts[-1]
 
-    nowPrice = dfs['m01'].closePrice[rexs['m01']-1]
-
     ctext = "now: " + textize_rate(nowPrice)
     ttext = "sum: " + textize_pips(sumProfit) + " pips "
     if entryStatus == NOENT:
@@ -196,6 +193,14 @@ def update_text():
         candle_axs[ashi].text(0.05,0.95,ctext,verticalalignment='top',transform=candle_axs[ashi].transAxes)
     infobax.text(0,0.5,ttext,verticalalignment="center",horizontalalignment="left")
     infobax.text(1,0.5,f"{100.0*(rexs['m01']-yoyuu)/(len(dfs['m01'])-yoyuu):.1f}% of the week",verticalalignment="center",horizontalalignment="right")
+
+def update_nowPrice():
+    global nowPrice
+    nowPrice = dfs['m01'].closePrice[rexs['m01']-1]
+    for ashi in ashis:
+        nowPriceLines[ashi].remove()
+        nowPriceLines[ashi] = candle_axs[ashi].hlines(nowPrice,0,len(dfs[ashi]), color="yellow", linewidth=priceLineWidth)
+
 
 
 
@@ -416,6 +421,8 @@ fig.add_axes(candle_axs[ashi])
 
 for ashi in ashis:
     create_ax(ashi)
+update_nowPrice()
+update_text()
 
 btns[watching_ashi].color = "lightseagreen"
 
