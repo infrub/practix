@@ -81,7 +81,7 @@ for ashi in ashis:
     rexs[ashi] = rex
     lexs[ashi] = max(0,rex-flamesize)
 
-watching_ashi = "h01"
+watching_ashi = "m05"
 LONG,NOENT,SHORT = 1,0,-1
 entryStatus = NOENT
 entryTime = None
@@ -146,6 +146,15 @@ def next_tick(event,bashi):
 
 def prev_tick(event,bashi):
     move_tick_with_new_rex(rexs[bashi]-1,bashi)
+
+def next_micro(event): next_tick(event,"m01")
+
+def prev_micro(event): prev_tick(event,"m01")
+
+def next_macro(event): next_tick(event,watching_ashi)
+
+def prev_macro(event): prev_tick(event,watching_ashi)
+
 
 
 def get_func_of_switch_ashi(ashi): # TODO キーボードでいじったときだけなぜか色がすぐには変わらない(カーソル当てると変わる)
@@ -312,15 +321,15 @@ btn_sell.on_clicked(sellOrExit)
 btn_buy = Button(plt.axes([0.16, y2, 0.1, y3-y2]), 'Buy',color = 'coral')
 btn_buy.on_clicked(buyOrExit)
 
-btn_sprev = Button(plt.axes([0.37, y2, 0.055, y3-y2]), 'prev',color = bgcolor)
-btn_sprev.on_clicked(lambda event: next_tick(event,"m01"))
-btn_snext = Button(plt.axes([0.43, y2, 0.055, y3-y2]), 'next',color = bgcolor)
-btn_snext.on_clicked(lambda event: next_tick(event,"m01"))
+btn_prev_micro = Button(plt.axes([0.37, y2, 0.055, y3-y2]), 'prev',color = bgcolor)
+btn_prev_micro.on_clicked(prev_micro)
+btn_next_micro = Button(plt.axes([0.43, y2, 0.055, y3-y2]), 'next',color = bgcolor)
+btn_next_micro.on_clicked(next_micro)
 
-btn_gprev = Button(plt.axes([0.515, y2, 0.055, y3-y2]), 'PREV',color = bgcolor)
-btn_gprev.on_clicked(lambda event: next_tick(event,watching_ashi))
-btn_gnext = Button(plt.axes([0.575, y2, 0.055, y3-y2]), 'NEXT',color = bgcolor)
-btn_gnext.on_clicked(lambda event: next_tick(event,watching_ashi))
+btn_prev_macro = Button(plt.axes([0.515, y2, 0.055, y3-y2]), 'PREV',color = bgcolor)
+btn_prev_macro.on_clicked(prev_macro)
+btn_next_macro = Button(plt.axes([0.575, y2, 0.055, y3-y2]), 'NEXT',color = bgcolor)
+btn_next_macro.on_clicked(next_macro)
 
 btns = {}
 btn_dummy1 = Button(plt.axes([0.65, y2, 0.045, y3-y2]), '',color = bgcolor)
@@ -369,14 +378,16 @@ try:
                 if event.key in jsn2["keyconfig"]["buy"]: buy(event)
                 elif event.key in jsn2["keyconfig"]["sell"]: sell(event)
                 elif event.key in jsn2["keyconfig"]["exit"]: exit(event)
-                elif event.key in jsn2["keyconfig"]["prev"]: prev_tick(event)
-                elif event.key in jsn2["keyconfig"]["next"]: next_tick(event)
+                elif event.key in jsn2["keyconfig"]["prev_micro"]: prev_micro(event)
+                elif event.key in jsn2["keyconfig"]["next_micro"]: next_micro(event)
+                elif event.key in jsn2["keyconfig"]["prev_macro"]: prev_macro(event)
+                elif event.key in jsn2["keyconfig"]["next_macro"]: next_macro(event)
                 elif event.key in jsn2["keyconfig"]["m05"]: get_func_of_switch_ashi("m05")(event)
                 elif event.key in jsn2["keyconfig"]["m15"]: get_func_of_switch_ashi("m15")(event)
                 elif event.key in jsn2["keyconfig"]["h01"]: get_func_of_switch_ashi("h01")(event)
                 elif event.key in jsn2["keyconfig"]["h04"]: get_func_of_switch_ashi("h04")(event)
                 elif event.key in jsn2["keyconfig"]["d01"]: get_func_of_switch_ashi("d01")(event)
-                else: pass
+                else: print("not configed: "+str(event.key)) #pass
             else:
                 pass
 except:
