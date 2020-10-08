@@ -286,14 +286,14 @@ def mutter(text):
 
 
 
-x1,x2,x3,x4 = 0.05,0.45,0.55,0.95
+x1,x2,x3,x4 = 0.05,0.47,0.53,0.95
 y0,y1,y2,y3,y4,y5,y6,y7 = 0.03,0.06,0.08,0.16,0.18,0.34,0.93,0.98
 
 #(left,bottom,width,height)
-acax_position = (x1,y5,x2-x1,y6-y5) # A面のcandle axの位置
-amax_position = (x1,y4,x2-x1,y5-y4)
-bcax_position = (x3,y5,x4-x3,y6-y5)
-bmax_position = (x3,y4,x4-x3,y5-y4)
+bcax_position = (x1,y5,x2-x1,y6-y5) # A面のcandle axの位置
+bmax_position = (x1,y4,x2-x1,y5-y4)
+acax_position = (x3,y5,x4-x3,y6-y5)
+amax_position = (x3,y4,x4-x3,y5-y4)
 infobax_position = (x1,y6,x4-x1,y7-y6)
 
 for ashi in ashis:
@@ -316,34 +316,42 @@ infobax.yaxis.set_visible(False)
 
 
 # ボタンを設置。冗長だがボタンを入れた変数の束縛がなくなるとボタンが働かなくなるので仕方ない
-btn_sell = Button(plt.axes([0.05, y2, 0.1, y3-y2]), 'Sell',color = 'cornflowerblue')
-btn_sell.on_clicked(sellOrExit)
-btn_buy = Button(plt.axes([0.16, y2, 0.1, y3-y2]), 'Buy',color = 'coral')
-btn_buy.on_clicked(buyOrExit)
-
-btn_prev_micro = Button(plt.axes([0.37, y2, 0.055, y3-y2]), 'prev',color = bgcolor)
-btn_prev_micro.on_clicked(prev_micro)
-btn_next_micro = Button(plt.axes([0.43, y2, 0.055, y3-y2]), 'next',color = bgcolor)
-btn_next_micro.on_clicked(next_micro)
-
-btn_prev_macro = Button(plt.axes([0.515, y2, 0.055, y3-y2]), 'PREV',color = bgcolor)
-btn_prev_macro.on_clicked(prev_macro)
-btn_next_macro = Button(plt.axes([0.575, y2, 0.055, y3-y2]), 'NEXT',color = bgcolor)
-btn_next_macro.on_clicked(next_macro)
+dd = 0.005
+d1 = 0.045
+d2 = d1 + dd
+d3 = 0.055
+d4 = 0.1
 
 btns = {}
-btn_dummy1 = Button(plt.axes([0.65, y2, 0.045, y3-y2]), '',color = bgcolor)
-btn_dummy1.on_clicked(lambda x: x)
-btns["m05"] = Button(plt.axes([0.70, y2, 0.045, y3-y2]), 'm05',color = bgcolor)
+btns["m05"] = Button(plt.axes([x1, y2, d1, y3-y2]), 'm05',color = bgcolor)
 btns["m05"].on_clicked(get_func_of_switch_ashi("m05"))
-btns["m15"] = Button(plt.axes([0.75, y2, 0.045, y3-y2]), 'm15',color = bgcolor)
+btns["m15"] = Button(plt.axes([x1+d2*1, y2, d1, y3-y2]), 'm15',color = bgcolor)
 btns["m15"].on_clicked(get_func_of_switch_ashi("m15"))
-btns["h01"] = Button(plt.axes([0.80, y2, 0.045, y3-y2]), 'h01',color = bgcolor)
+btns["h01"] = Button(plt.axes([x1+d2*2, y2, d1, y3-y2]), 'h01',color = bgcolor)
 btns["h01"].on_clicked(get_func_of_switch_ashi("h01"))
-btns["h04"] = Button(plt.axes([0.85, y2, 0.045, y3-y2]), 'h04',color = bgcolor)
+btns["h04"] = Button(plt.axes([x1+d2*3, y2, d1, y3-y2]), 'h04',color = bgcolor)
 btns["h04"].on_clicked(get_func_of_switch_ashi("h04"))
-btns["d01"] = Button(plt.axes([0.90, y2, 0.045, y3-y2]), 'd01',color = bgcolor)
+btns["d01"] = Button(plt.axes([x1+d2*4, y2, d1, y3-y2]), 'd01',color = bgcolor)
 btns["d01"].on_clicked(get_func_of_switch_ashi("d01"))
+
+btn_prev_macro = Button(plt.axes([x2-d3*2-dd, y2, d3, y3-y2]), 'PREV',color = bgcolor)
+btn_prev_macro.on_clicked(prev_macro)
+btn_next_macro = Button(plt.axes([x2-d3, y2, d3, y3-y2]), 'NEXT',color = bgcolor)
+btn_next_macro.on_clicked(next_macro)
+
+btn_prev_micro = Button(plt.axes([x3, y2, d3, y3-y2]), 'prev',color = bgcolor)
+btn_prev_micro.on_clicked(prev_micro)
+btn_next_micro = Button(plt.axes([x3+d3+dd, y2, d3, y3-y2]), 'next',color = bgcolor)
+btn_next_micro.on_clicked(next_micro)
+
+
+btn_sell = Button(plt.axes([x4-d4*2-dd, y2, d4, y3-y2]), 'Sell',color = 'cornflowerblue')
+btn_sell.on_clicked(sellOrExit)
+btn_buy = Button(plt.axes([x4-d4, y2, d4, y3-y2]), 'Buy',color = 'coral')
+btn_buy.on_clicked(buyOrExit)
+
+
+
 
 
 
