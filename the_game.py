@@ -25,6 +25,7 @@ ashis = ["m01","m05","m15","h01","h04","d01"]
 pairname = "USDJPY" if len(sys.argv)<=1 else sys.argv[1]
 weeki = 1 if len(sys.argv)<=2 else int(sys.argv[2])
 init_m01_rex = yoyuu if len(sys.argv)<=3 else int(sys.argv[3])
+muki = "yoko"
 
 with open(f"raw_histories/{pairname}/style.json") as f:
     jsn1 = json.loads(f.read())

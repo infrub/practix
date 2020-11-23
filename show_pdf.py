@@ -29,7 +29,7 @@ MAX_PDF_PAGE = 100
 trip = 24
 flamesize = 144
 yoyuu = 144
-ashis = ["m01","m05","m15","h01","h04","d01"]
+ashis = ["m01","m01","m15","h01","h04","d01"]
 
 #pairname = "USDJPY" if len(sys.argv)<=1 else sys.argv[1]
 #weeki = 0 if len(sys.argv)<=2 else int(sys.argv[2])
@@ -142,7 +142,7 @@ def create_ax(ashi):
 
     cnt = 1
     for mutteri, mutter in mutter_df.iterrows():
-        if lexs["m05"] < mutter.nowX <= rexs["m05"]:
+        if lexs["m01"] < mutter.nowX <= rexs["m01"]:
             mutter_axs[ashi].text(0.0, 1.0-cnt*0.3, f"{mutter.nowTime} {mutter.text}", size=12)
             cnt += 1
 
@@ -222,7 +222,7 @@ def plot_and_save_all_page():
     pdf.savefig()
     plt.close()
 
-    ashi = "m05"
+    ashi = "m01"
 
     for lex in trange(0, len(dfs[ashi]), flamesize):
         plt.style.use('dark_background')
