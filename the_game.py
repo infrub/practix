@@ -25,7 +25,7 @@ ashis = ["m01","m05","m15","h01","h04","d01"]
 pairname = "USDJPY" if len(sys.argv)<=1 else sys.argv[1]
 weeki = 1 if len(sys.argv)<=2 else int(sys.argv[2])
 init_m01_rex = yoyuu if len(sys.argv)<=3 else int(sys.argv[3])
-muki = "yoko"
+muki = "yoko"if len(sys.argv)<=4 else sys.argv[4]
 
 with open(f"raw_histories/{pairname}/style.json") as f:
     jsn1 = json.loads(f.read())
@@ -295,20 +295,21 @@ def mutter(text):
 x1,x2,x3,x4 = 0.05,0.47,0.53,0.95
 y0,y1,y2,y3,y4,y5,y6,y7 = 0.03,0.06,0.08,0.16,0.18,0.34,0.93,0.98
 
+
 #(left,bottom,width,height)
-bcax_position = (x1,y5,x2-x1,y6-y5) # A面のcandle axの位置
-bmax_position = (x1,y4,x2-x1,y5-y4)
-acax_position = (x3,y5,x4-x3,y6-y5)
-amax_position = (x3,y4,x4-x3,y5-y4)
+choucax_position = (x1,y5,x2-x1,y6-y5) # 長期面のcandle axの位置
+choumax_position = (x1,y4,x2-x1,y5-y4) # 長期面のmacd axの位置
+tancax_position = (x3,y5,x4-x3,y6-y5)
+tanmax_position = (x3,y4,x4-x3,y5-y4)
 infobax_position = (x1,y6,x4-x1,y7-y6)
 
 for ashi in ashis:
     if ashi == "m01":
-        mac_axs[ashi] = fig.add_axes(amax_position, facecolor=bgcolor)
-        candle_axs[ashi] = fig.add_axes(acax_position,sharex=mac_axs[ashi], facecolor=bgcolor)
+        mac_axs[ashi] = fig.add_axes(tanmax_position, facecolor=bgcolor)
+        candle_axs[ashi] = fig.add_axes(tancax_position,sharex=mac_axs[ashi], facecolor=bgcolor)
     else:
-        mac_axs[ashi] = fig.add_axes(bmax_position, facecolor=bgcolor)
-        candle_axs[ashi] = fig.add_axes(bcax_position,sharex=mac_axs[ashi], facecolor=bgcolor)
+        mac_axs[ashi] = fig.add_axes(choumax_position, facecolor=bgcolor)
+        candle_axs[ashi] = fig.add_axes(choucax_position,sharex=mac_axs[ashi], facecolor=bgcolor)
     fig.delaxes(mac_axs[ashi])
     fig.delaxes(candle_axs[ashi])
 
