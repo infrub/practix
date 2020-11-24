@@ -69,7 +69,7 @@ plt.style.use('dark_background')
 if muki == "yoko":
 	fig = plt.figure(figsize=(12,7), num=f"the_game", facecolor=bgcolor)
 elif muki == "tate":
-	fig = plt.figure(figsize=(6,14), num=f"the_game", facecolor=bgcolor)
+	fig = plt.figure(figsize=(6,13), num=f"the_game", facecolor=bgcolor)
 
 
 candle_axs = {ashi:None for ashi in ashis}
@@ -303,14 +303,16 @@ def boxofbox(L,G):
 
 if muki == "yoko":
 	infobax_position = (0.05, 0.93, 0.91, 0.05)
-	mtrbox_position = (0.05, 0.03, 0.91, 0.03)
 	chou_position = (0.05, 0.08, 0.42, 0.85)
 	tan_position = (0.54, 0.08, 0.42, 0.85)
+	mtrbox_position = (0.05, 0.03, 0.91, 0.03)
 
 
 elif muki == "tate":
-	infobax_position = (x1, y6, x4-x1, y7-y6)
-	mtrbox_position = (x1, y0, x4-x1, y1-y0)
+	infobax_position = (0.05, 0.96, 0.91, 0.03)
+	chou_position = (0.05, 0.53, 0.91, 0.43)
+	tan_position = (0.05, 0.06, 0.91, 0.43)
+	mtrbox_position = (0.05, 0.02, 0.91, 0.02)
 
 
 
