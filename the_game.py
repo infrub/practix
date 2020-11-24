@@ -291,17 +291,25 @@ def mutter(text):
         hoge = text + "" # なぜかこのくらいしないとバグる
 
 
+def ofchou(l,b,w,h):
+	return (l/2,b,w/2,h)
 
-x1,x2,x3,x4 = 0.05,0.47,0.53,0.95
+def oftan(l,b,w,h):
+	return (l/2+0.48,b,w/2,h)
+
+	
+
+
+
+x1,x4 = 0.1,0.94
 y0,y1,y2,y3,y4,y5,y6,y7 = 0.03,0.06,0.08,0.16,0.18,0.34,0.93,0.98
 
 
 #(left,bottom,width,height)
-choucax_position = (x1,y5,x2-x1,y6-y5) # 長期面のcandle axの位置
-choumax_position = (x1,y4,x2-x1,y5-y4) # 長期面のmacd axの位置
-tancax_position = (x3,y5,x4-x3,y6-y5)
-tanmax_position = (x3,y4,x4-x3,y5-y4)
-infobax_position = (x1,y6,x4-x1,y7-y6)
+choucax_position = ofchou(x1,y5,x4-x1,y6-y5) # 長期面のcandle axの位置
+choumax_position = ofchou(x1,y4,x4-x1,y5-y4) # 長期面のcandle axの位置
+tancax_position = oftan(x1,y5,x4-x1,y6-y5)
+tanmax_position = oftan(x1,y4,x4-x1,y5-y4)
 
 for ashi in ashis:
     if ashi == "m01":
@@ -313,6 +321,48 @@ for ashi in ashis:
     fig.delaxes(mac_axs[ashi])
     fig.delaxes(candle_axs[ashi])
 
+
+
+# ボタンを設置。冗長だがボタンを入れた変数の束縛がなくなるとボタンが働かなくなるので仕方ない
+dd = 0.01
+d1 = 0.09
+d2 = d1 + dd
+d3 = 0.11
+d4 = 0.16
+
+btns = {}
+btns["m05"] = Button(plt.axes(ofchou(x1, y2, d1, y3-y2)), 'm05',color = bgcolor)
+btns["m05"].on_clicked(get_func_of_switch_ashi("m05"))
+btns["m15"] = Button(plt.axes(ofchou(x1+d2*1, y2, d1, y3-y2)), 'm15',color = bgcolor)
+btns["m15"].on_clicked(get_func_of_switch_ashi("m15"))
+btns["h01"] = Button(plt.axes(ofchou(x1+d2*2, y2, d1, y3-y2)), 'h01',color = bgcolor)
+btns["h01"].on_clicked(get_func_of_switch_ashi("h01"))
+btns["h04"] = Button(plt.axes(ofchou(x1+d2*3, y2, d1, y3-y2)), 'h04',color = bgcolor)
+btns["h04"].on_clicked(get_func_of_switch_ashi("h04"))
+btns["d01"] = Button(plt.axes(ofchou(x1+d2*4, y2, d1, y3-y2)), 'd01',color = bgcolor)
+btns["d01"].on_clicked(get_func_of_switch_ashi("d01"))
+
+btn_prev_macro = Button(plt.axes(ofchou(x4-d3*2-dd, y2, d3, y3-y2)), 'PREV',color = bgcolor)
+btn_prev_macro.on_clicked(prev_macro)
+btn_next_macro = Button(plt.axes(ofchou(x4-d3, y2, d3, y3-y2)), 'NEXT',color = bgcolor)
+btn_next_macro.on_clicked(next_macro)
+
+btn_sell = Button(plt.axes(oftan(x1, y2, d4, y3-y2)), 'Sell',color = 'cornflowerblue')
+btn_sell.on_clicked(sellOrExit)
+btn_buy = Button(plt.axes(oftan(x1+d4+dd, y2, d4, y3-y2)), 'Buy',color = 'coral')
+btn_buy.on_clicked(buyOrExit)
+
+btn_prev_micro = Button(plt.axes(oftan(x4-d3*2-dd, y2, d3, y3-y2)), 'prev',color = bgcolor)
+btn_prev_micro.on_clicked(prev_micro)
+btn_next_micro = Button(plt.axes(oftan(x4-d3, y2, d3, y3-y2)), 'next',color = bgcolor)
+btn_next_micro.on_clicked(next_micro)
+
+
+
+infobax_position = (x1/2, y6, x4/2+0.48-x1/2, y7-y6)
+mtrbox_position = (x1/2, y0, x4/2+0.48-x1/2, y1-y0)
+
+
 infobax = fig.add_axes(infobax_position, facecolor=bgcolor)
 infobax.spines['top'].set_visible(False)
 infobax.spines['bottom'].set_visible(False)
@@ -320,46 +370,6 @@ infobax.spines['left'].set_visible(False)
 infobax.spines['right'].set_visible(False)
 infobax.xaxis.set_visible(False)
 infobax.yaxis.set_visible(False)
-
-
-# ボタンを設置。冗長だがボタンを入れた変数の束縛がなくなるとボタンが働かなくなるので仕方ない
-dd = 0.005
-d1 = 0.045
-d2 = d1 + dd
-d3 = 0.055
-d4 = 0.08
-
-btns = {}
-btns["m05"] = Button(plt.axes([x1, y2, d1, y3-y2]), 'm05',color = bgcolor)
-btns["m05"].on_clicked(get_func_of_switch_ashi("m05"))
-btns["m15"] = Button(plt.axes([x1+d2*1, y2, d1, y3-y2]), 'm15',color = bgcolor)
-btns["m15"].on_clicked(get_func_of_switch_ashi("m15"))
-btns["h01"] = Button(plt.axes([x1+d2*2, y2, d1, y3-y2]), 'h01',color = bgcolor)
-btns["h01"].on_clicked(get_func_of_switch_ashi("h01"))
-btns["h04"] = Button(plt.axes([x1+d2*3, y2, d1, y3-y2]), 'h04',color = bgcolor)
-btns["h04"].on_clicked(get_func_of_switch_ashi("h04"))
-btns["d01"] = Button(plt.axes([x1+d2*4, y2, d1, y3-y2]), 'd01',color = bgcolor)
-btns["d01"].on_clicked(get_func_of_switch_ashi("d01"))
-
-btn_prev_macro = Button(plt.axes([x2-d3*2-dd, y2, d3, y3-y2]), 'PREV',color = bgcolor)
-btn_prev_macro.on_clicked(prev_macro)
-btn_next_macro = Button(plt.axes([x2-d3, y2, d3, y3-y2]), 'NEXT',color = bgcolor)
-btn_next_macro.on_clicked(next_macro)
-
-btn_sell = Button(plt.axes([x3, y2, d4, y3-y2]), 'Sell',color = 'cornflowerblue')
-btn_sell.on_clicked(sellOrExit)
-btn_buy = Button(plt.axes([x3+d4+dd, y2, d4, y3-y2]), 'Buy',color = 'coral')
-btn_buy.on_clicked(buyOrExit)
-
-btn_prev_micro = Button(plt.axes([x4-d3*2-dd, y2, d3, y3-y2]), 'prev',color = bgcolor)
-btn_prev_micro.on_clicked(prev_micro)
-btn_next_micro = Button(plt.axes([x4-d3, y2, d3, y3-y2]), 'next',color = bgcolor)
-btn_next_micro.on_clicked(next_micro)
-
-
-
-
-
 
 
 
@@ -382,7 +392,7 @@ class MyTextBox(TextBox):
         mutter(text)
         self.set_val("")
 
-mtrbox = MyTextBox(plt.axes([x1, y0, x4-x1, y1-y0]), "", initial="",color=bgcolor,hovercolor="#333333")
+mtrbox = MyTextBox(plt.axes(mtrbox_position), "", initial="",color=bgcolor,hovercolor="#333333")
 mtrbox.on_submit(mtrbox.what_do_on_submit)
 
 # キーボードで操作もね
