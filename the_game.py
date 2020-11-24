@@ -24,8 +24,8 @@ ashis = ["m01","m05","m15","h01","h04","d01"]
 
 pairname = "USDJPY" if len(sys.argv)<=1 else sys.argv[1]
 weeki = 1 if len(sys.argv)<=2 else int(sys.argv[2])
-init_m01_rex = yoyuu if len(sys.argv)<=3 else int(sys.argv[3])
-muki = "yoko"if len(sys.argv)<=4 else sys.argv[4]
+muki = "yoko"if len(sys.argv)<=3 else sys.argv[3]
+init_m01_rex = yoyuu if len(sys.argv)<=4 else int(sys.argv[4])
 
 with open(f"raw_histories/{pairname}/style.json") as f:
     jsn1 = json.loads(f.read())
@@ -66,7 +66,10 @@ priceLineWidth = 0.6
 bgcolor = "#131313"
 plt.style.use('dark_background')
 #fig = plt.figure(figsize=(12,7), num=f"{pairname} week_"+ str(weeki).zfill(3), facecolor=bgcolor)
-fig = plt.figure(figsize=(12,7), num=f"the_game", facecolor=bgcolor)
+if muki == "yoko":
+	fig = plt.figure(figsize=(12,7), num=f"the_game", facecolor=bgcolor)
+elif muki == "tate":
+	fig = plt.figure(figsize=(6,14), num=f"the_game", facecolor=bgcolor)
 
 
 candle_axs = {ashi:None for ashi in ashis}
@@ -291,25 +294,40 @@ def mutter(text):
         hoge = text + "" # なぜかこのくらいしないとバグる
 
 
+
+def boxofbox(L,G):
+	ll,lb,lw,lh = L
+	gl,gb,gw,gh = G
+	return (gl+ll*gw, gb+lb*gh, lw*gw, lh*gh)
+
+
+if muki == "yoko":
+	infobax_position = (0.05, 0.93, 0.91, 0.05)
+	mtrbox_position = (0.05, 0.03, 0.91, 0.03)
+	chou_position = (0.05, 0.08, 0.42, 0.85)
+	tan_position = (0.54, 0.08, 0.42, 0.85)
+
+
+elif muki == "tate":
+	infobax_position = (x1, y6, x4-x1, y7-y6)
+	mtrbox_position = (x1, y0, x4-x1, y1-y0)
+
+
+
 def ofchou(l,b,w,h):
-	return (l/2,b,w/2,h)
+	return boxofbox((l,b,w,h),chou_position)
 
 def oftan(l,b,w,h):
-	return (l/2+0.48,b,w/2,h)
-
-	
+	return boxofbox((l,b,w,h),tan_position)
 
 
-
-x1,x4 = 0.1,0.94
-y0,y1,y2,y3,y4,y5,y6,y7 = 0.03,0.06,0.08,0.16,0.18,0.34,0.93,0.98
 
 
 #(left,bottom,width,height)
-choucax_position = ofchou(x1,y5,x4-x1,y6-y5) # 長期面のcandle axの位置
-choumax_position = ofchou(x1,y4,x4-x1,y5-y4) # 長期面のcandle axの位置
-tancax_position = oftan(x1,y5,x4-x1,y6-y5)
-tanmax_position = oftan(x1,y4,x4-x1,y5-y4)
+choucax_position = ofchou(0,0.33,1,0.67) # 長期面のcandle axの位置
+choumax_position = ofchou(0,0.13,1,0.20) # 長期面のcandle axの位置
+tancax_position = oftan(0,0.33,1,0.67)	
+tanmax_position = oftan(0,0.13,1,0.20)
 
 for ashi in ashis:
     if ashi == "m01":
@@ -324,43 +342,40 @@ for ashi in ashis:
 
 
 # ボタンを設置。冗長だがボタンを入れた変数の束縛がなくなるとボタンが働かなくなるので仕方ない
+y3 = 0.1
 dd = 0.01
-d1 = 0.09
-d2 = d1 + dd
-d3 = 0.11
-d4 = 0.16
+d_ah = 0.09
+d2 = d_ah + dd
+d_pn = 0.11
+d_sb = 0.16
 
 btns = {}
-btns["m05"] = Button(plt.axes(ofchou(x1, y2, d1, y3-y2)), 'm05',color = bgcolor)
+btns["m05"] = Button(plt.axes(ofchou(0, 0, d_ah, y3)), 'm05',color = bgcolor)
 btns["m05"].on_clicked(get_func_of_switch_ashi("m05"))
-btns["m15"] = Button(plt.axes(ofchou(x1+d2*1, y2, d1, y3-y2)), 'm15',color = bgcolor)
+btns["m15"] = Button(plt.axes(ofchou(d2*1, 0, d_ah, y3)), 'm15',color = bgcolor)
 btns["m15"].on_clicked(get_func_of_switch_ashi("m15"))
-btns["h01"] = Button(plt.axes(ofchou(x1+d2*2, y2, d1, y3-y2)), 'h01',color = bgcolor)
+btns["h01"] = Button(plt.axes(ofchou(d2*2, 0, d_ah, y3)), 'h01',color = bgcolor)
 btns["h01"].on_clicked(get_func_of_switch_ashi("h01"))
-btns["h04"] = Button(plt.axes(ofchou(x1+d2*3, y2, d1, y3-y2)), 'h04',color = bgcolor)
+btns["h04"] = Button(plt.axes(ofchou(d2*3, 0, d_ah, y3)), 'h04',color = bgcolor)
 btns["h04"].on_clicked(get_func_of_switch_ashi("h04"))
-btns["d01"] = Button(plt.axes(ofchou(x1+d2*4, y2, d1, y3-y2)), 'd01',color = bgcolor)
+btns["d01"] = Button(plt.axes(ofchou(d2*4, 0, d_ah, y3)), 'd01',color = bgcolor)
 btns["d01"].on_clicked(get_func_of_switch_ashi("d01"))
 
-btn_prev_macro = Button(plt.axes(ofchou(x4-d3*2-dd, y2, d3, y3-y2)), 'PREV',color = bgcolor)
+btn_prev_macro = Button(plt.axes(ofchou(1-d_pn*2-dd, 0, d_pn, y3)), 'PREV',color = bgcolor)
 btn_prev_macro.on_clicked(prev_macro)
-btn_next_macro = Button(plt.axes(ofchou(x4-d3, y2, d3, y3-y2)), 'NEXT',color = bgcolor)
+btn_next_macro = Button(plt.axes(ofchou(1-d_pn, 0, d_pn, y3)), 'NEXT',color = bgcolor)
 btn_next_macro.on_clicked(next_macro)
 
-btn_sell = Button(plt.axes(oftan(x1, y2, d4, y3-y2)), 'Sell',color = 'cornflowerblue')
+btn_sell = Button(plt.axes(oftan(0, 0, d_sb, y3)), 'Sell',color = 'cornflowerblue')
 btn_sell.on_clicked(sellOrExit)
-btn_buy = Button(plt.axes(oftan(x1+d4+dd, y2, d4, y3-y2)), 'Buy',color = 'coral')
+btn_buy = Button(plt.axes(oftan(0+d_sb+dd, 0, d_sb, y3)), 'Buy',color = 'coral')
 btn_buy.on_clicked(buyOrExit)
 
-btn_prev_micro = Button(plt.axes(oftan(x4-d3*2-dd, y2, d3, y3-y2)), 'prev',color = bgcolor)
+btn_prev_micro = Button(plt.axes(oftan(1-d_pn*2-dd, 0, d_pn, y3)), 'prev',color = bgcolor)
 btn_prev_micro.on_clicked(prev_micro)
-btn_next_micro = Button(plt.axes(oftan(x4-d3, y2, d3, y3-y2)), 'next',color = bgcolor)
+btn_next_micro = Button(plt.axes(oftan(1-d_pn, 0, d_pn, y3)), 'next',color = bgcolor)
 btn_next_micro.on_clicked(next_micro)
 
-
-
-infobax_position = (x1/2, y6, x4/2+0.48-x1/2, y7-y6)
-mtrbox_position = (x1/2, y0, x4/2+0.48-x1/2, y1-y0)
 
 
 infobax = fig.add_axes(infobax_position, facecolor=bgcolor)
