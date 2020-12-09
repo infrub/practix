@@ -43,8 +43,9 @@ def textize_pips(x):
 
 
 logfname = f"logs/{pairname}/week_{str(weeki).zfill(3)}.csv"
-with open(logfname,"a") as f:
-    f.write("entryX,exitX,entryTime,exitTime,entryStatus,entryPrice,exitPrice,profitPips\n")
+if not os.path.isfile(logfname):
+    with open(logfname,"w") as f:
+        f.write("entryX,exitX,entryTime,exitTime,entryStatus,entryPrice,exitPrice,profitPips\n")
 def wrlog(entryX,exitX,entryTime,exitTime,entryStatus,entryPrice,exitPrice,profitPips):
     with open(logfname,"a") as f:
         f.write(f"{entryX},{exitX},{entryTime},{exitTime},{entryStatus},{textize_rate(entryPrice)},{textize_rate(exitPrice)},{textize_pips(profitPips)}\n")
@@ -282,8 +283,9 @@ def sellOrExit(event):
 
 
 mutfname = f"logs/{pairname}/week_{str(weeki).zfill(3)}.mut"
-with open(mutfname,"a") as f:
-    f.write(f"nowX,nowTime,text\n")
+if not os.path.isfile(mutfname):
+    with open(mutfname,"w") as f:
+        f.write(f"nowX,nowTime,text\n")
 def mutter(text):
     if len(text)!=0:
         nowX = rexs['m01']
