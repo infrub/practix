@@ -65,6 +65,9 @@ sell_order_df = order_df[order_df.entryStatus==-1]
 
 mutter_df = pd.read_csv("logs/" + pairname + "/week_" + str(weeki).zfill(3) + ".mut", parse_dates=False)
 
+prevcnt = int(open(f"logs/{pairname}/week_{str(weeki).zfill(3)}.json").read())
+
+
 #styles
 priceLineWidth = 0.6
 bgcolor = "#131313"
@@ -204,7 +207,7 @@ def plot_top_page():
     plt.gca().spines['top'].set_visible(False)
     plt.tick_params(labelbottom=False, labelleft=False, labelright=False, labeltop=False)
     plt.tick_params(bottom=False, left=False, right=False, top=False)
-    plt.text(0,0.8, pairname+" week_"+str(weeki).zfill(3), fontsize=30)
+    plt.text(0,0.8, f"{pairname} week_{str(weeki).zfill(3)}     prevcnt {prevcnt}", fontsize=30)
     table = plt.table(cellText=cellTextss, rowLabels=rowLabels, colLabels=colLabels, colWidths=colWidths, bbox=[0.1,0.0,0.8,0.7], loc="center")
     table.auto_set_font_size(False)
     table.set_fontsize(30)

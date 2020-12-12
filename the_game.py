@@ -96,6 +96,8 @@ lastProfit = 0
 sumProfit = 0
 nowPrice = None
 
+prevcnt = 0
+
 
 def create_ax(ashi):
     mpf.candlestick2_ohlc_indexed_by_openTime(candle_axs[ashi], dfs[ashi].openPrice, dfs[ashi].highPrice, dfs[ashi].lowPrice, dfs[ashi].closePrice, width=0.7, alpha=1.0, colorup="#fa2200", colordown="#0077ff")
@@ -153,11 +155,15 @@ def prev_tick(event,bashi):
 
 def next_micro(event): next_tick(event,"m01")
 
-def prev_micro(event): prev_tick(event,"m01")
+def prev_micro(event):
+    prev_tick(event,"m01")
 
 def next_macro(event): next_tick(event,watching_ashi)
 
-def prev_macro(event): prev_tick(event,watching_ashi)
+def prev_macro(event):
+    global prevcnt
+    prev_tick(event,watching_ashi)
+    prevcnt += 1
 
 
 
@@ -197,7 +203,7 @@ def update_text():
     for ashi in ashis:
         candle_axs[ashi].text(0.05,0.95,ctext,verticalalignment='top',transform=candle_axs[ashi].transAxes)
     infobax.text(0,0.5,ttext,verticalalignment="center",horizontalalignment="left")
-    infobax.text(1,0.5,f"{100.0*(rexs['m01']-yoyuu)/(len(dfs['m01'])-yoyuu):.1f}% of the week",verticalalignment="center",horizontalalignment="right")
+    infobax.text(1,0.5,f"{prevcnt} preved, {100.0*(rexs['m01']-yoyuu)/(len(dfs['m01'])-yoyuu):.1f}% of the week",verticalalignment="center",horizontalalignment="right")
 
 def update_nowPrice():
     global nowPrice
@@ -459,6 +465,12 @@ btns[watching_ashi].color = "lightseagreen"
 
 
 plt.show()
+
+
+
+jsfname = f"logs/{pairname}/week_{str(weeki).zfill(3)}.json"
+with open(jsfname,"a") as f:
+    f.write(str(prevcnt))
 
 
 #閉じたら日記に書き込む
