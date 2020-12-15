@@ -203,7 +203,7 @@ def update_text():
     for ashi in ashis:
         candle_axs[ashi].text(0.05,0.95,ctext,verticalalignment='top',transform=candle_axs[ashi].transAxes)
     infobax.text(0,0.5,ttext,verticalalignment="center",horizontalalignment="left")
-    infobax.text(1,0.5,f"{prevcnt} preved, {100.0*(rexs['m01']-yoyuu)/(len(dfs['m01'])-yoyuu):.1f}% of the week",verticalalignment="center",horizontalalignment="right")
+    infobax.text(1,0.5,f"{prevcnt} preved     {100.0*(rexs['m01']-yoyuu)/(len(dfs['m01'])-yoyuu):.1f}% of the week",verticalalignment="center",horizontalalignment="right")
 
 def update_nowPrice():
     global nowPrice
