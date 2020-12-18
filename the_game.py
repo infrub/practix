@@ -25,7 +25,22 @@ ashis = ["m01","m05","m15","h01","h04","d01"]
 pairname = "USDJPY" if len(sys.argv)<=1 else sys.argv[1]
 weeki = 1 if len(sys.argv)<=2 else int(sys.argv[2])
 muki = "yoko"if len(sys.argv)<=3 else sys.argv[3]
-init_m01_rex = yoyuu if len(sys.argv)<=4 else int(sys.argv[4])
+
+
+
+stjsfname = f"logs/{pairname}/week_{str(weeki).zfill(3)}.json"
+try:
+    with open(stjsfname) as f:
+        stjs = json.loads(f.read())
+    init_m01_rex = stjs["m01_rex"]
+    prevcnt = stjs["prevcnt"]
+    sumProfit = stjs["sumProfit"]
+except:
+    print("ara-")
+    init_m01_rex = yoyuu
+    prevcnt = 0
+    sumProfit = 0.0
+
 
 with open(f"raw_histories/{pairname}/style.json") as f:
     jsn1 = json.loads(f.read())
@@ -93,10 +108,7 @@ entryTime = None
 entryPrice = None
 entryX = None
 lastProfit = 0
-sumProfit = 0
 nowPrice = None
-
-prevcnt = 0
 
 
 def create_ax(ashi):
@@ -467,11 +479,9 @@ btns[watching_ashi].color = "lightseagreen"
 plt.show()
 
 
-
-jsfname = f"logs/{pairname}/week_{str(weeki).zfill(3)}.json"
-with open(jsfname,"a") as f:
-    f.write(str(prevcnt))
-
+with open(stjsfname,"w") as f:
+    stjs = {"m01_rex":int(rexs["m01"]),"prevcnt":int(prevcnt),"sumProfit":float(sumProfit)}
+    f.write(json.dumps(stjs))
 
 #閉じたら日記に書き込む
 blogfname = f"logs/{pairname}/blog.txt"
