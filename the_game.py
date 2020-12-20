@@ -35,8 +35,8 @@ try:
     init_m01_rex = stjs["m01_rex"]
     prevcnt = stjs["prevcnt"]
     sumProfit = stjs["sumProfit"]
+    print("this is continue of game")
 except:
-    print("ara-")
     init_m01_rex = yoyuu
     prevcnt = 0
     sumProfit = 0.0

@@ -65,7 +65,11 @@ sell_order_df = order_df[order_df.entryStatus==-1]
 
 mutter_df = pd.read_csv("logs/" + pairname + "/week_" + str(weeki).zfill(3) + ".mut", parse_dates=False)
 
-prevcnt = int(open(f"logs/{pairname}/week_{str(weeki).zfill(3)}.json").read())
+
+stjsfname = f"logs/{pairname}/week_{str(weeki).zfill(3)}.json"
+with open(stjsfname) as f:
+    stjs = json.loads(f.read())
+prevcnt = stjs["prevcnt"]
 
 
 #styles
