@@ -30,9 +30,9 @@ df = alltime_dfs["h01"]
 
 
 
-for weeki in trange(150):
+for weeki in trange(104,180):
     kireme_d = datetime.datetime(year=2018, month=1, day=7) + datetime.timedelta(days=7) * weeki
-    if kireme_d >= datetime.datetime(year=2020, month=1, day=1): break
+    if kireme_d >= datetime.datetime(year=2020, month=12, day=29): break
     owbf_d = kireme_d - datetime.timedelta(days=7)
 
     dfs = {}
