@@ -90,6 +90,7 @@ elif muki == "tate":
 
 candle_axs = {ashi:None for ashi in ashis}
 mac_axs = {ashi:None for ashi in ashis}
+guide_axs = {ashi:None for ashi in ashis}
 nowPriceLines = {}
 entryPriceLines = {}
 
@@ -136,29 +137,27 @@ def create_ax(ashi):
     mac_axs[ashi].grid(True,linestyle='dotted')
     mac_axs[ashi].tick_params(labelbottom=False)
 
+    guide_axs[ashi].tick_params(labelbottom=False)
+    guide_axs[ashi].tick_params(labelleft=False)
+
 
     nowPriceLines[ashi] = candle_axs[ashi].hlines(0,0,len(dfs[ashi]), color="yellow", linewidth=priceLineWidth)
     entryPriceLines[ashi] = candle_axs[ashi].hlines(0,0,len(dfs[ashi]), color=bgcolor, linewidth=priceLineWidth)
 
 
-hoge_map = ["purple"]+["red"]*4+["orange"]*4+["yellow"]*5+["green"]*5+["blue"]*4+["purple"] #oseania, early tokyo, late tokyo, EU, EUNY, NY, oseania
+#hoge_map = ["purple"]+["red"]*4+["orange"]*4+["yellow"]*5+["green"]*5+["blue"]*4+["purple"] #oseania, early tokyo, late tokyo, EU, EUNY, NY, oseania
+hoge_map = ["green"]+["yellow"]*4+["orange"]*4+["red"]*5+["purple"]*5+["blue"]*4+["green"] #oseania, early tokyo, late tokyo, EU, EUNY, NY, oseania
 def draw_timeguide():
     for h01_openX in range(dfs["m01"]["matching_closeX_in_h01"][yoyuu+1],len(dfs["h01"])-1):
         h = dfs["h01"].openTime[h01_openX].hour
         color = hoge_map[h]
-        print(dfs["h01"].openTime[h01_openX],h,color)
-
+        #print(dfs["h01"].openTime[h01_openX],h,color)
         for ashi,ho in zip(["m01","m05","m15","h01"],[60,12,4,1]):
             closeX = dfs["h01"]["matching_closeX_in_"+ashi][h01_openX]
             openX = closeX - ho
-            print(dfs[ashi].openTime[openX])
-            mac_axs[ashi].bar(openX, 5, width=ho, color=color, align="edge")
+            #print(dfs[ashi].openTime[openX])
+            guide_axs[ashi].bar(openX, 1, width=ho, color=color, align="edge")
         
-
-
-        #print(dfs["h01"].openTime[h01_openX],dfs["h01"].openTime[dfs["h01"]["matching_closeX_in_h01"][h01_openX]-1])
-
-
 
 
 def move_tick_with_new_rex(new_rex_in_bashi,bashi):
@@ -202,10 +201,12 @@ def get_func_of_switch_ashi(ashi): # TODO キーボードでいじったとき�
     global watching_ashi
     def switch(event):
         global watching_ashi
+        fig.delaxes(guide_axs[watching_ashi])
         fig.delaxes(mac_axs[watching_ashi])
         fig.delaxes(candle_axs[watching_ashi])
         btns[watching_ashi].color = bgcolor
         watching_ashi = ashi
+        fig.add_axes(guide_axs[watching_ashi])
         fig.add_axes(mac_axs[watching_ashi])
         fig.add_axes(candle_axs[watching_ashi])
         btns[watching_ashi].color = "lightseagreen"
@@ -365,20 +366,25 @@ def oftan(l,b,w,h):
 
 
 #(left,bottom,width,height)
-choucax_position = ofchou(0,0.33,1,0.67) # 長期面のcandle axの位置
-choumax_position = ofchou(0,0.13,1,0.20) # 長期面のcandle axの位置
-tancax_position = oftan(0,0.33,1,0.67)	
-tanmax_position = oftan(0,0.13,1,0.20)
+choucax_position = ofchou(0,0.34,1,0.67) # 長期面のcandle axの位置
+choumax_position = ofchou(0,0.14,1,0.20) # 長期面のmacd axの位置
+chougax_position = ofchou(0,0.13,1,0.01)
+tancax_position = oftan(0,0.34,1,0.67)	
+tanmax_position = oftan(0,0.14,1,0.20)
+tangax_position = oftan(0,0.13,1,0.01)
 
 for ashi in ashis:
     if ashi == "m01":
         mac_axs[ashi] = fig.add_axes(tanmax_position, facecolor=bgcolor)
         candle_axs[ashi] = fig.add_axes(tancax_position,sharex=mac_axs[ashi], facecolor=bgcolor)
+        guide_axs[ashi] = fig.add_axes(tangax_position,sharex=mac_axs[ashi], facecolor=bgcolor)
     else:
         mac_axs[ashi] = fig.add_axes(choumax_position, facecolor=bgcolor)
         candle_axs[ashi] = fig.add_axes(choucax_position,sharex=mac_axs[ashi], facecolor=bgcolor)
+        guide_axs[ashi] = fig.add_axes(chougax_position,sharex=mac_axs[ashi], facecolor=bgcolor)
     fig.delaxes(mac_axs[ashi])
     fig.delaxes(candle_axs[ashi])
+    fig.delaxes(guide_axs[ashi])
 
 
 
@@ -482,10 +488,12 @@ plt.connect('key_press_event',keycon)
 ashi = "m01"
 fig.add_axes(mac_axs[ashi])
 fig.add_axes(candle_axs[ashi])
+fig.add_axes(guide_axs[ashi])
 
 ashi = watching_ashi
 fig.add_axes(mac_axs[ashi])
 fig.add_axes(candle_axs[ashi])
+fig.add_axes(guide_axs[ashi])
 
 for ashi in ashis:
     create_ax(ashi)
