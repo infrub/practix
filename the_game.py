@@ -37,7 +37,7 @@ try:
     sumProfit = stjs["sumProfit"]
     print("this is continued game")
 except:
-    init_m01_rex = yoyuu
+    init_m01_rex = yoyuu+1
     prevcnt = 0
     sumProfit = 0.0
 
@@ -116,7 +116,7 @@ def create_ax(ashi):
     candle_axs[ashi].scatter(idxs[ashi]+1, dfs[ashi].MA_short, color="#f6ad48", s=1) # 終値の単純移動平均(ピリオド5)
     candle_axs[ashi].scatter(idxs[ashi]+1, dfs[ashi].MA_mid, color="#aacf52", s=1) # 終値の単純移動平均(ピリオド13)
     candle_axs[ashi].scatter(idxs[ashi]+1, dfs[ashi].MA_long, color="#00b1a9", s=1) # 終値の単純移動平均(ピリオド25)
-    candle_axs[ashi].set_xticks(np.arange(1,len(dfs[ashi]),trip)) # 1ずらしたほうが罫線のキリがよくなる
+    candle_axs[ashi].set_xticks(np.arange(1,len(dfs[ashi]),trip)) # 1ずらしたほうが罫線のキリがよくなる yoyuuまわりのmakeupで1本余分に出るよう書いてしまったので…
     candle_axs[ashi].set_xticklabels(dfs[ashi].openTime[1:len(dfs[ashi]):trip].dt.strftime('%Y-%m-%d\n%H:%M'),rotation=0,size="small")
 
     miny = round(min(dfs[ashi].lowPrice),rate_digpl-2)-(0.1**(rate_digpl-2))
@@ -139,6 +139,25 @@ def create_ax(ashi):
 
     nowPriceLines[ashi] = candle_axs[ashi].hlines(0,0,len(dfs[ashi]), color="yellow", linewidth=priceLineWidth)
     entryPriceLines[ashi] = candle_axs[ashi].hlines(0,0,len(dfs[ashi]), color=bgcolor, linewidth=priceLineWidth)
+
+
+hoge_map = ["purple"]+["red"]*4+["orange"]*4+["yellow"]*5+["green"]*5+["blue"]*4+["purple"] #oseania, early tokyo, late tokyo, EU, EUNY, NY, oseania
+def draw_timeguide():
+    for h01_openX in range(dfs["m01"]["matching_closeX_in_h01"][yoyuu+1],len(dfs["h01"])-1):
+        h = dfs["h01"].openTime[h01_openX].hour
+        color = hoge_map[h]
+        print(dfs["h01"].openTime[h01_openX],h,color)
+
+        for ashi,ho in zip(["m01","m05","m15","h01"],[60,12,4,1]):
+            closeX = dfs["h01"]["matching_closeX_in_"+ashi][h01_openX]
+            openX = closeX - ho
+            print(dfs[ashi].openTime[openX])
+            mac_axs[ashi].bar(openX, 5, width=ho, color=color, align="edge")
+        
+
+
+        #print(dfs["h01"].openTime[h01_openX],dfs["h01"].openTime[dfs["h01"]["matching_closeX_in_h01"][h01_openX]-1])
+
 
 
 
@@ -470,6 +489,7 @@ fig.add_axes(candle_axs[ashi])
 
 for ashi in ashis:
     create_ax(ashi)
+draw_timeguide()
 update_nowPrice()
 update_text()
 
