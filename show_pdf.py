@@ -221,8 +221,9 @@ def plot_top_page():
 
 
 def plot_and_save_all_page():
-    pdf_filename = "logs/" + pairname + "/week_" + str(weeki).zfill(3) + ".pdf"
-    pdf = PdfPages(pdf_filename)
+    pdf_filename = "week_" + str(weeki).zfill(3) + ".pdf"
+    pdf_pathname = "logs/" + pairname + "/" + pdf_filename
+    pdf = PdfPages(pdf_pathname)
 
     plt.style.use('default')
     plot_top_page()
@@ -251,6 +252,20 @@ def plot_and_save_all_page():
         plt.close()
 
     pdf.close()
+
+
+    from pydrive.auth import GoogleAuth
+    from pydrive.drive import GoogleDrive
+
+    gauth = GoogleAuth()
+    gauth.CommandLineAuth()
+    drive = GoogleDrive(gauth)
+
+    folder_id = '19qGn9ufB0w4CcxQzqmPX5CZEVjs4mVlH'
+    f = drive.CreateFile({'title': pdf_filename, 'mimeType': 'application/pdf', 'parents': [{'kind': 'drive#fileLink', 'id':folder_id}]})
+    f.SetContentFile(pdf_pathname)
+    f.Upload()
+
 
 
 plot_and_save_all_page()
