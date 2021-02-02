@@ -217,6 +217,9 @@ def main(pairname,weeki):
     def plot_and_save_all_page():
         pdf_filename = "week_" + str(weeki).zfill(3) + ".pdf"
         pdf_pathname = "logs/" + pairname + "/" + pdf_filename
+        if os.path.exists(pdf_pathname):
+            print("already exists")
+            return
         pdf = PdfPages(pdf_pathname)
 
         plt.style.use('default')

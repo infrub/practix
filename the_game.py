@@ -520,3 +520,8 @@ with open(blogfname,"a") as f:
     f.write(f"\nsumProfit: {sumProfit:.1f}")
 
 print(f"sumProfit: {sumProfit:.1f}")
+
+
+if rexs['m01'] == len(dfs['m01']):
+    from show_pdf import main as show_pdf_main
+    show_pdf_main(pairname,weeki)
