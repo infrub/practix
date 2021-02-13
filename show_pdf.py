@@ -184,16 +184,11 @@ def main(pairname,weeki):
         loss_len = len(loss_order_df)
         loss_score = np.sum(loss_order_df.profitPips)
 
-        draw_order_df = order_df[order_df.profitPips==0]
-        draw_len = len(draw_order_df)
-        draw_score = np.sum(draw_order_df.profitPips)
-
-        rowLabels = ["All","Won","Lost","Draw"]
+        rowLabels = ["All","Won","Lost"]
         colLabels = ["Number", "Sum pips", "Mean pips"]
         cellTextss = [[f"{ all_len:>5}", f"{all_score:>9.2f}", f"{all_score/all_len:>8.3f}"],
                     [f"{ won_len:>5}({int( won_len/all_len*100):>2}%)", f"{ won_score:>9.2f}", f"{ won_score/ won_len:>8.3f}"],
-                    [f"{loss_len:>5}({int(loss_len/all_len*100):>2}%)", f"{loss_score:>9.2f}", f"{loss_score/loss_len:>8.3f}"],
-                    [f"{draw_len:>5}({int(draw_len/all_len*100):>2}%)", f"{draw_score:>9.2f}", f"{draw_score/draw_len:>8.3f}"]]
+                    [f"{loss_len:>5}({int(loss_len/all_len*100):>2}%)", f"{loss_score:>9.2f}", f"{loss_score/loss_len:>8.3f}"]]
         colWidths = [0.2,0.2,0.2]
 
 
