@@ -210,6 +210,7 @@ def main(pairname,weeki):
 
 
     def plot_and_save_all_page():
+        print("plot pdf..")
         pdf_filename = "week_" + str(weeki).zfill(3) + ".pdf"
         pdf_pathname = "logs/" + pairname + "/" + pdf_filename
         if os.path.exists(pdf_pathname):
@@ -246,6 +247,7 @@ def main(pairname,weeki):
         pdf.close()
 
 
+        print("upload pdf..")
         from pydrive.auth import GoogleAuth
         from pydrive.drive import GoogleDrive
 
@@ -257,6 +259,8 @@ def main(pairname,weeki):
         f = drive.CreateFile({'title': pdf_filename, 'mimeType': 'application/pdf', 'parents': [{'kind': 'drive#fileLink', 'id':folder_id}]})
         f.SetContentFile(pdf_pathname)
         f.Upload()
+
+        print("done.")
 
 
 

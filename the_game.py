@@ -110,6 +110,7 @@ entryPrice = None
 entryX = None
 lastProfit = 0
 nowPrice = None
+rightEdgeFlag = False
 
 
 def create_ax(ashi):
@@ -175,7 +176,9 @@ def move_tick_with_new_rex(new_rex_in_bashi,bashi):
     plt.draw()
 
 def next_tick(event,bashi):
+    global rightEdgeFlag
     if rexs[bashi] >= len(dfs[bashi]):
+        rightEdgeFlag = True
         print("RIGHT EDGE!")
         return
     move_tick_with_new_rex(rexs[bashi]+1,bashi)
@@ -521,7 +524,7 @@ with open(blogfname,"a") as f:
 
 print(f"sumProfit: {sumProfit:.1f}")
 
-
-if rexs['m01'] == len(dfs['m01']):
+if rightEdgeFlag:
+    print()
     from show_pdf import main as show_pdf_main
     show_pdf_main(pairname,weeki)
