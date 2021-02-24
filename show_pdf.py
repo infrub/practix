@@ -247,23 +247,6 @@ def main(pairname,weeki):
         pdf.close()
 
 
-        print("upload pdf..")
-        from pydrive.auth import GoogleAuth
-        from pydrive.drive import GoogleDrive
-
-        gauth = GoogleAuth()
-        gauth.CommandLineAuth()
-        drive = GoogleDrive(gauth)
-
-        folder_id = '19qGn9ufB0w4CcxQzqmPX5CZEVjs4mVlH'
-        f = drive.CreateFile({'title': pdf_filename, 'mimeType': 'application/pdf', 'parents': [{'kind': 'drive#fileLink', 'id':folder_id}]})
-        f.SetContentFile(pdf_pathname)
-        f.Upload()
-
-        print("done.")
-
-
-
     plot_and_save_all_page()
 
 
@@ -272,3 +255,5 @@ if __name__ == "__main__":
     pairname = sys.argv[1]
     weeki = int(sys.argv[2])
     main(pairname,weeki)
+    from upload_pdf import main as upload_pdf_main
+    upload_pdf_main(pairname,weeki)
