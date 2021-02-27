@@ -528,3 +528,5 @@ if rightEdgeFlag:
     print()
     from show_pdf import main as show_pdf_main
     show_pdf_main(pairname,weeki)
+    from upload_pdf import main as upload_pdf_main
+    upload_pdf_main(pairname,weeki)
