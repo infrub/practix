@@ -25,6 +25,7 @@ ashis = ["m01","m05","m15","h01","h04","d01"]
 pairname = "USDJPY" if len(sys.argv)<=1 else sys.argv[1]
 weeki = 1 if len(sys.argv)<=2 else int(sys.argv[2])
 muki = "yoko"if len(sys.argv)<=3 else sys.argv[3]
+noprev = True if "noprev" in sys.argv else False
 
 
 
@@ -469,9 +470,11 @@ try:
                 if event.key in jsn2["keyconfig"]["buy"]: buy(event)
                 elif event.key in jsn2["keyconfig"]["sell"]: sell(event)
                 elif event.key in jsn2["keyconfig"]["exit"]: exit(event)
-                elif event.key in jsn2["keyconfig"]["prev_micro"]: prev_micro(event)
+                elif event.key in jsn2["keyconfig"]["prev_micro"]:
+                    if not noprev: prev_micro(event)
                 elif event.key in jsn2["keyconfig"]["next_micro"]: next_micro(event)
-                elif event.key in jsn2["keyconfig"]["prev_macro"]: prev_macro(event)
+                elif event.key in jsn2["keyconfig"]["prev_macro"]:
+                    if not noprev: prev_macro(event)
                 elif event.key in jsn2["keyconfig"]["next_macro"]: next_macro(event)
                 elif event.key in jsn2["keyconfig"]["m05"]: get_func_of_switch_ashi("m05")(event)
                 elif event.key in jsn2["keyconfig"]["m15"]: get_func_of_switch_ashi("m15")(event)
