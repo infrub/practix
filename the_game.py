@@ -25,7 +25,7 @@ ashis = ["m01","m05","m15","h01","h04","d01"]
 pairname = "USDJPY" if len(sys.argv)<=1 else sys.argv[1]
 weeki = 1 if len(sys.argv)<=2 else int(sys.argv[2])
 muki = "yoko"if len(sys.argv)<=3 else sys.argv[3]
-noprev = True if "noprev" in sys.argv else False
+#noprev = True if "noprev" in sys.argv else False
 
 
 
@@ -39,7 +39,7 @@ try:
     print("this is continued game")
 except:
     init_m01_rex = yoyuu+1
-    prevcnt = 0
+    prevcnt = 0.0
     sumProfit = 0.0
 
 
@@ -190,7 +190,9 @@ def prev_tick(event,bashi):
 def next_micro(event): next_tick(event,"m01")
 
 def prev_micro(event):
+    global prevcnt
     prev_tick(event,"m01")
+    prevcnt += 0.2
 
 def next_macro(event): next_tick(event,watching_ashi)
 
@@ -470,11 +472,9 @@ try:
                 if event.key in jsn2["keyconfig"]["buy"]: buy(event)
                 elif event.key in jsn2["keyconfig"]["sell"]: sell(event)
                 elif event.key in jsn2["keyconfig"]["exit"]: exit(event)
-                elif event.key in jsn2["keyconfig"]["prev_micro"]:
-                    if not noprev: prev_micro(event)
+                elif event.key in jsn2["keyconfig"]["prev_micro"]: prev_micro(event)
                 elif event.key in jsn2["keyconfig"]["next_micro"]: next_micro(event)
-                elif event.key in jsn2["keyconfig"]["prev_macro"]:
-                    if not noprev: prev_macro(event)
+                elif event.key in jsn2["keyconfig"]["prev_macro"]: prev_macro(event)
                 elif event.key in jsn2["keyconfig"]["next_macro"]: next_macro(event)
                 elif event.key in jsn2["keyconfig"]["m05"]: get_func_of_switch_ashi("m05")(event)
                 elif event.key in jsn2["keyconfig"]["m15"]: get_func_of_switch_ashi("m15")(event)
@@ -514,7 +514,7 @@ plt.show()
 
 
 with open(stjsfname,"w") as f:
-    stjs = {"m01_rex":int(rexs["m01"]),"prevcnt":int(prevcnt),"sumProfit":float(sumProfit)}
+    stjs = {"m01_rex":int(rexs["m01"]),"prevcnt":float(prevcnt),"sumProfit":float(sumProfit)}
     f.write(json.dumps(stjs))
 
 #閉じたら日記に書き込む
